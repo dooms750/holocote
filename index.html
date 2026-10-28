@@ -226,6 +226,87 @@ h1,h2,h3{margin:0;text-wrap:balance}
 .toast svg{width:18px;height:18px;flex:none}
 @keyframes drop{from{transform:translate(-50%,-40px);opacity:0}}
 
+/* échange : arène VS */
+.notice.pick{align-items:center}
+.arena{--ca:#3a4a6b;--cb:#6b4a3a;position:relative;border-radius:22px;overflow:hidden;background:#0c0c11;color:#fff;padding:16px 12px 14px;isolation:isolate}
+.arena::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.7;
+  background:linear-gradient(100deg,var(--ca) 0%,transparent 52%),linear-gradient(280deg,var(--cb) 0%,transparent 52%)}
+.slots{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:start;gap:8px}
+.slot{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;text-align:center;color:inherit}
+.slot .who{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.slot.a .who{color:#7ab6ff} .slot.b .who{color:#ffbe5c}
+.slot .pic{width:100%;max-width:150px;position:relative}
+.slot .holo{width:100%}
+.slot-empty{width:100%;aspect-ratio:63/88;border-radius:10px;border:2px dashed rgba(255,255,255,.32);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:rgba(255,255,255,.75);font-size:14px;font-weight:600;background:rgba(255,255,255,.05)}
+.slot-empty b{font-size:36px;font-weight:300;line-height:1}
+.slot .nm{font-weight:700;font-size:15px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot .st{font-size:12px;color:rgba(255,255,255,.7);background:rgba(255,255,255,.14);border-radius:99px;padding:3px 9px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot .val{font-family:var(--round);font-size:21px;font-weight:700;font-variant-numeric:tabular-nums}
+.slot.win .holo{box-shadow:0 0 0 3px #ffd60a,0 0 34px rgba(255,214,10,.55)}
+.crown{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:3;background:#ffd60a;color:#000;font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.vs-mid{display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:min(26vw,96px)}
+.slot .pic{display:block}
+.slot button.st{font:inherit;font-size:12px}
+.vs{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-family:var(--round);font-weight:900;font-style:italic;font-size:19px;letter-spacing:-.02em;position:relative;isolation:isolate;color:#fff}
+.vs::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--foil);background-size:200% 200%;z-index:-2;animation:foil 3s linear infinite}
+.vs::after{content:"";position:absolute;inset:3px;border-radius:50%;background:#15151c;z-index:-1}
+.swap{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;display:grid;place-items:center}
+.swap svg{width:17px;height:17px}
+.arena-foot{display:flex;justify-content:center;gap:18px;margin-top:12px;font-size:15px}
+.arena-foot button{color:#7ab6ff;font-weight:600}
+.arena.fight .slot.a .pic{animation:slamL .6s cubic-bezier(.2,1.25,.4,1) both}
+.arena.fight .slot.b .pic{animation:slamR .6s cubic-bezier(.2,1.25,.4,1) both}
+.arena.fight .vs{animation:vsPop .55s .42s cubic-bezier(.2,1.7,.4,1) both}
+.arena.fight{animation:shake .32s .52s ease-in-out}
+.arena.fight::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.95),rgba(255,214,10,.4) 18%,transparent 45%);opacity:0;animation:boom .7s .45s ease-out}
+@keyframes slamL{from{transform:translateX(-130%) rotate(-14deg);opacity:0}}
+@keyframes slamR{from{transform:translateX(130%) rotate(14deg);opacity:0}}
+@keyframes vsPop{from{transform:scale(0) rotate(-90deg)}}
+@keyframes shake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+@keyframes boom{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+.reveal>*{animation:fadeup .45s both}
+.reveal>*:nth-child(2){animation-delay:.08s}.reveal>*:nth-child(3){animation-delay:.16s}.reveal>*:nth-child(4){animation-delay:.24s}
+.pad{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.verdict{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700}
+.verdict .ic{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff;font-size:16px}
+.verdict.good .ic{background:var(--green)} .verdict.bad .ic{background:var(--red)} .verdict.even .ic{background:var(--tint)}
+.verdict small{display:block;font-size:13px;font-weight:500;color:var(--label-2)}
+.balance{display:flex;height:12px;border-radius:99px;overflow:hidden;gap:3px;background:var(--fill)}
+.balance .ba{background:var(--tint);border-radius:99px 0 0 99px;transition:flex-grow .6s}
+.balance .bb{background:var(--orange);border-radius:0 99px 99px 0;transition:flex-grow .6s}
+.bal-legend{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--label-2);font-variant-numeric:tabular-nums}
+.bal-legend b{color:var(--label);font-size:15px}
+.side-a{color:var(--tint)} .side-b{color:var(--orange)}
+.cmp{display:grid;grid-template-columns:minmax(0,1fr) 104px minmax(0,1fr);align-items:center;gap:8px;padding:11px 14px;position:relative}
+.cmp+.cmp::before{content:"";position:absolute;top:0;left:14px;right:14px;border-top:.5px solid var(--sep)}
+.cmp .lab{text-align:center;font-size:12px;color:var(--label-2);line-height:1.25}
+.cmp .l{text-align:right;min-width:0}.cmp .r{min-width:0}
+.cmp b{font-weight:600;font-variant-numeric:tabular-nums;font-size:16px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cmp i{display:block;height:5px;border-radius:3px;margin-top:5px;opacity:.35}
+.cmp .l i{margin-left:auto;background:var(--tint)} .cmp .r i{background:var(--orange)}
+.cmp .w i{opacity:1} .cmp .l.w b{color:var(--tint)} .cmp .r.w b{color:var(--orange)}
+.cmp.head b{font-size:14px}
+.duel-head{display:flex;gap:12px;align-items:center}
+.duel-head .trophy{width:40px;height:40px;border-radius:12px;background:#ffd60a;color:#000;display:grid;place-items:center;flex:none}
+.duel-head .trophy svg{width:22px;height:22px}
+.duel-head b{display:block;font-size:17px;line-height:1.25}
+.duel-head span{font-size:13px;color:var(--label-2)}
+.turn{display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px;padding:10px 16px;position:relative;font-size:15px}
+.turn+.turn::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--sep)}
+.turn .n{font-size:13px;font-weight:600;color:var(--label-2);padding-top:1px}
+.turn p{margin:0;line-height:1.35}
+.turn p+p{margin-top:4px}
+.turn .ko{font-weight:700;color:var(--red)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;border-radius:5px;margin-left:4px;vertical-align:1px}
+.tag.tw{background:rgba(255,59,48,.14);color:var(--red)} .tag.tr{background:var(--fill);color:var(--label-2)}
+.hist-pics{display:flex;flex:none}
+.hist-pics .thumb{width:34px}
+.hist-pics .thumb+.thumb{margin-left:-10px;box-shadow:-2px 0 0 var(--surface)}
+.picker .g button{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px;text-align:left;font-size:17px;color:var(--label)}
+.picker .g button+button{border-top:.5px solid var(--sep)}
+.picker .g button small{display:block;font-size:12px;color:var(--label-2)}
+.picker .g button .ck{color:var(--tint);font-weight:700;font-size:18px}
+
 /* launch */
 .intro{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;transition:opacity .45s}
 .intro.out{opacity:0;pointer-events:none}
@@ -257,6 +338,12 @@ h1,h2,h3{margin:0;text-wrap:balance}
   <!-- SCANNER -->
   <section class="view" id="v-scanner">
     <div><h1 class="large" data-title>Scanner</h1><div class="subhead">Cadre ta carte et appuie sur le déclencheur</div></div>
+
+    <div class="notice pick" id="pickBanner" hidden>
+      <span class="ico" style="background:var(--orange)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3 8l4 4M3 8h13M17 20l4-4-4-4M21 16H8"/></svg></span>
+      <div style="flex:1;min-width:0"><b>Échange en cours</b><span>Scanne ou cherche <span id="pickWho">la carte proposée</span>.</span></div>
+      <button class="l" type="button" id="pickCancel">Annuler</button>
+    </div>
 
     <div class="cam off" id="cam">
       <video id="video" playsinline muted autoplay></video>
@@ -328,6 +415,17 @@ h1,h2,h3{margin:0;text-wrap:balance}
     <div class="grid" id="grid"></div>
   </section>
 
+  <!-- ÉCHANGE -->
+  <section class="view" id="v-echange" hidden>
+    <div><h1 class="large" data-title>Échange</h1><div class="subhead">Compare deux cartes en face-à-face avant d'échanger</div></div>
+    <div class="arena" id="arena"></div>
+    <div class="view" id="vsResults"></div>
+    <div class="sec" id="tradeHistSec" hidden>
+      <div class="sec-h">Historique des échanges</div>
+      <div class="group clist" id="tradeHist"></div>
+    </div>
+  </section>
+
   <!-- RÉGLAGES -->
   <section class="view" id="v-reglages" hidden>
     <div><h1 class="large" data-title>Réglages</h1></div>
@@ -369,6 +467,7 @@ h1,h2,h3{margin:0;text-wrap:balance}
   <nav aria-label="Onglets">
     <a href="#scanner" id="t-scanner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M3.5 8V6a2.5 2.5 0 0 1 2.5-2.5h2M16 3.5h2A2.5 2.5 0 0 1 20.5 6v2M20.5 16v2a2.5 2.5 0 0 1-2.5 2.5h-2M8 20.5H6A2.5 2.5 0 0 1 3.5 18v-2"/><rect x="8.5" y="7" width="7" height="10" rx="1.5"/></svg>Scanner</a>
     <a href="#collection" id="t-collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3" y="6" width="11" height="15" rx="2"/><path d="M7 3h10a2 2 0 0 1 2 2v13"/></svg>Collection<span class="badge" id="tabCount"></span></a>
+    <a href="#echange" id="t-echange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3 8l4 4M3 8h13M17 20l4-4-4-4M21 16H8"/></svg>Échange</a>
     <a href="#reglages" id="t-reglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Réglages</a>
   </nav>
 </div>
@@ -394,9 +493,22 @@ const TYPES = {
 const TYPE_ALIASES = { feu:"feu",fire:"feu", eau:"eau",water:"eau", plante:"plante",grass:"plante", electrique:"electrique",lightning:"electrique",
   psy:"psy",psychic:"psy", combat:"combat",fighting:"combat", obscurite:"obscurite",darkness:"obscurite", metal:"metal", fee:"fee",fairy:"fee",
   dragon:"dragon", incolore:"incolore",colorless:"incolore", dresseur:"dresseur",trainer:"dresseur", energie:"energie",energy:"energie" };
-const COND = [["M","Mint",1.15],["NM","Near Mint",1],["EX","Excellent",.75],["GD","Good",.55],["LP","Light Played",.4],["PL","Played",.25]];
-const condMult = k => (COND.find(c=>c[0]===k)||COND[1])[2];
-const condName = k => (COND.find(c=>c[0]===k)||COND[1])[1];
+// État : code interne (celui de Cardmarket), nom affiché, nom court, décote par rapport à une carte quasi neuve
+const COND = [["M","Neuve","Neuve",1.15],["NM","Quasi neuve","Q. neuve",1],["EX","Excellente","Excell.",.75],["GD","Bonne","Bonne",.55],["LP","Légèrement jouée","Lég. jouée",.4],["PL","Jouée","Jouée",.25]];
+const condRow = k => COND.find(c=>c[0]===k)||COND[1];
+const condMult = k => condRow(k)[3];
+const condName = k => condRow(k)[1];
+const condShort = k => condRow(k)[2];
+// Raretés et stades que la base renvoie encore en anglais
+const RARITY_FR = { "Holo Rare":"Rare Holo", "Holo Rare V":"Rare Holo V", "Holo Rare VMAX":"Rare Holo VMAX", "Holo Rare VSTAR":"Rare Holo VSTAR",
+  "Ultra Rare":"Ultra rare", "Shiny rare":"Rare chromatique", "Shiny rare V":"Rare chromatique V", "Shiny rare VMAX":"Rare chromatique VMAX",
+  "Futuristic Rare":"Rare futuriste", "HIGH-TECH rare":"Rare haute technologie", "Mega Attack Rare":"Rare attaque Méga", "Pikachu Rare":"Rare Pikachu",
+  "RGB Rare":"Rare RVB", "Radieux Rare":"Rare radieuse", "Dresseur Full Art":"Dresseur illustration complète", "Illustration rare":"Rare illustration",
+  "Illustration spéciale rare":"Rare illustration spéciale", "Hyper rare":"Hyper rare", "Double rare":"Double rare", "Amazing Rare":"Magnifique rare",
+  "Secret Rare":"Rare secrète", "Rare Holo LV.X":"Rare Holo NV.X", "Common":"Commune", "Uncommon":"Peu commune", "Rare Holo":"Rare Holo", "None":"Sans rareté" };
+const frRar = r => RARITY_FR[r] || r || "";
+const STAGE_FR = { "Base":"De base", "Basic":"De base", "Stage1":"Niveau 1", "Stage2":"Niveau 2", "Niveau Sup":"Niveau supérieur", "MÉGA":"Méga", "Restored":"Restauré", "BREAK":"TURBO" };
+const frStage = s => STAGE_FR[s] || s || "";
 const tColor = t => (TYPES[t]||TYPES.incolore).c;
 const tLabel = t => (TYPES[t]||TYPES.incolore).l;
 const strip = s => String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
@@ -448,10 +560,15 @@ function holoHTML(c, extra=""){
 }
 
 /* ======================= Navigation par onglets ======================= */
+let pickSide = null;   // "a" ou "b" quand on choisit une carte pour l'échange
 function route(){
-  const v = ["#collection","#reglages"].includes(location.hash) ? location.hash.slice(1) : "scanner";
-  ["scanner","collection","reglages"].forEach(n=>{ $("#v-"+n).hidden = n!==v; $("#t-"+n).setAttribute("aria-current", n===v?"page":"false"); });
-  $("#navTitle").textContent = {scanner:"Scanner",collection:"Collection",reglages:"Réglages"}[v];
+  const v = ["#collection","#echange","#reglages"].includes(location.hash) ? location.hash.slice(1) : "scanner";
+  ["scanner","collection","echange","reglages"].forEach(n=>{ $("#v-"+n).hidden = n!==v; $("#t-"+n).setAttribute("aria-current", n===v?"page":"false"); });
+  $("#navTitle").textContent = {scanner:"Scanner",collection:"Collection",echange:"Échange",reglages:"Réglages"}[v];
+  if(v!=="scanner") pickSide = null;
+  $("#pickBanner").hidden = !pickSide;
+  if(pickSide) $("#pickWho").textContent = pickSide==="a" ? "ta carte" : "la carte proposée";
+  if(v==="echange") renderTrade(false);
   if(v==="scanner"){ if(camWanted) startCam(); } else stopCam();
   window.scrollTo(0,0); navState();
 }
@@ -624,7 +741,7 @@ async function handleShot(cv){
     const q = [nameFor(lang), id.numero && (id.numero + (id.total?"/"+id.total:""))].filter(Boolean).join(" ");
     const exact = found.filter(c=>c.exact);
     if(exact.length===1 || (found.length===1 && id.numero)) openCardSheet({ id:(exact[0]||found[0]).id, lang:(exact[0]||found[0]).lang, etat:id.etat });
-    else openSearchSheet({ title:"Choisis ta carte", query:q, results:found, etat:id.etat,
+    else openSearchSheet({ title: pickSide ? (pickSide==="a"?"Ta carte":"Sa carte") : "Choisis ta carte", query:q, results:found, etat:id.etat,
       note: found.length ? `${found.length} carte${found.length>1?"s":""} correspondent. Touche la tienne.` : "Aucune carte trouvée. Corrige le nom ou le numéro." });
   }catch(err){ clearInterval(iv); toast(err.message || "Identification impossible", false); }
   finally{ clearInterval(iv); done(); }
@@ -642,11 +759,14 @@ function rowHTML(c){
 /* ======================= Feuilles (sheets) ======================= */
 const root = $("#sheetRoot");
 let sheetStack = 0;
+const openSheets = new Set();
+const closeAllSheets = () => [...openSheets].forEach(f=>f());
 function sheet(html, { onClose } = {}){
   const wrap=document.createElement("div"); wrap.className="sheet-wrap";
   wrap.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
   root.appendChild(wrap); sheetStack++; document.body.style.overflow="hidden";
-  const close=()=>{ wrap.remove(); sheetStack--; if(!sheetStack) document.body.style.overflow=""; removeEventListener("keydown",key); onClose&&onClose(); };
+  const close=()=>{ if(!wrap.isConnected) return; wrap.remove(); sheetStack--; openSheets.delete(close); if(!sheetStack) document.body.style.overflow=""; removeEventListener("keydown",key); onClose&&onClose(); };
+  openSheets.add(close);
   const key=e=>{ if(e.key==="Escape" && wrap===root.lastElementChild) close(); };
   addEventListener("keydown",key);
   wrap.addEventListener("click",e=>{ if(e.target===wrap) close(); });
@@ -654,17 +774,16 @@ function sheet(html, { onClose } = {}){
 }
 const topBar = (left, title, right) => `<div class="sheet-top"><div class="grabber"></div><div class="sheet-nav"><button type="button" data-close>${left}</button><span class="t">${title}</span>${right||"<span></span>"}</div></div>`;
 
-async function openSearchSheet({ title, query, results, note, etat }){
+async function openSearchSheet({ title, query, results, note, etat, onClose }){
   const s = sheet(`${topBar("Fermer", esc(title))}
     <form class="searchbar" data-f autocomplete="off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
       <input type="search" value="${esc(query)}" placeholder="Nom et numéro" enterkeyhint="search" data-q><button type="submit">Chercher</button></form>
-    <div data-res></div>`);
+    <div data-res></div>`, { onClose });
   s.el.querySelector("[data-close]").onclick=s.close;
   const res=s.el.querySelector("[data-res]");
   const show=(list, msg)=>{
     res.innerHTML = (msg?`<div class="sec-f" style="margin-bottom:8px">${esc(msg)}</div>`:"") + (list.length?`<div class="group clist">${list.map(rowHTML).join("")}</div>`:"");
-    res.querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>openCardSheet({id:b.dataset.id, lang:b.dataset.lang, etat}));
-  };
+    res.querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>openCardSheet({id:b.dataset.id, lang:b.dataset.lang, etat}));  };
   const run=async q=>{
     res.innerHTML=`<div class="loading"><div class="spin"></div>Recherche…</div>`;
     try{
@@ -687,9 +806,10 @@ async function openCardSheet({ id, lang, etat, owned }){
   if(!card){ body.innerHTML=`<div class="empty"><h3>Carte introuvable</h3><p>La base de cartes ne répond pas. Vérifie ta connexion et réessaie.</p></div>`; return; }
 
   const st = owned ? {...owned} : { variant:"normal", etat: COND.some(c=>c[0]===etat)?etat:"NM", quantite:1 };
+  const isPick = !!pickSide && !owned;
   const model = {
     id:card.id, lang, nom:card.name, image:card.image||"", set:card.set?.name||"", setId:card.set?.id||"", numero:card.localId,
-    total:card.set?.cardCount?.official||"", rarete:card.rarity||"", type:typeKey(card.types, card.category), illustrateur:card.illustrator||"",
+    total:card.set?.cardCount?.official||"", rarete:frRar(card.rarity), stade:frStage(card.stage), type:typeKey(card.types, card.category), illustrateur:card.illustrator||"",
     cmId: card.thirdParty?.cardmarket || null
   };
   if(!owned) pushRecent(model);
@@ -706,9 +826,10 @@ async function openCardSheet({ id, lang, etat, owned }){
         <div><div class="value">${val!=null?eur(val):"Pas de cote"}</div>
           <div class="value-cap">${val!=null?`${(st.quantite||1)>1?st.quantite+" ex. · ":""}${condName(st.etat)} · tendance Cardmarket`:"Cardmarket n'a pas de prix pour cette carte"}</div></div>
       </div>
-      ${rev?`<div class="sec"><div class="sec-h">Version</div><div class="seg" data-var><button type="button" data-v="normal" aria-pressed="${st.variant==="normal"}">Normale</button><button type="button" data-v="reverse" aria-pressed="${st.variant==="reverse"}">Reverse</button></div></div>`:""}
-      <div class="sec"><div class="sec-h">État de ton exemplaire</div><div class="seg" data-cond>${COND.map(c=>`<button type="button" data-c="${c[0]}" aria-pressed="${c[0]===st.etat}" title="${c[1]}">${c[0]}</button>`).join("")}</div>
-        <div class="sec-f">La tendance Cardmarket correspond à une carte Near Mint. Les autres états sont estimés par une décote.</div></div>
+      ${rev?`<div class="sec"><div class="sec-h">Version</div><div class="seg" data-var><button type="button" data-v="normal" aria-pressed="${st.variant==="normal"}">Normale</button><button type="button" data-v="reverse" aria-pressed="${st.variant==="reverse"}">Holo inversée</button></div></div>`:""}
+      <div class="sec"><div class="sec-h">Ton exemplaire</div><div class="group"><button class="cell" type="button" data-etat><span class="k">État</span><span class="v">${condName(st.etat)}</span><span class="chev">›</span></button></div>
+        <div class="sec-f">La tendance Cardmarket correspond à une carte quasi neuve. Pour les autres états, la valeur est estimée avec une décote.</div></div>
+      ${isPick?`<button class="btn btn-fill w" type="button" data-pick>Choisir pour l'échange</button>`:""}
       ${owned?`<div class="group"><div class="cell"><span class="k">Exemplaires</span><span class="stepper"><button type="button" data-q="-1" aria-label="Retirer un exemplaire">−</button><output>${st.quantite||1}</output><button type="button" data-q="1" aria-label="Ajouter un exemplaire">+</button></span></div></div>`:""}
       <div class="sec"><div class="sec-h"><span>Cardmarket</span><span>${p.updated?"MAJ "+new Date(p.updated).toLocaleDateString("fr-FR",{day:"numeric",month:"short"}):""}</span></div>
         <div class="group trio"><div><span>Prix bas</span><b>${eur(p.low)}</b></div><div class="mid"><span>Tendance</span><b>${eur(p.trend)}</b></div><div><span>Moyenne</span><b>${eur(p.avg)}</b></div></div>
@@ -716,23 +837,31 @@ async function openCardSheet({ id, lang, etat, owned }){
           <div class="cell"><span class="k">Moyenne 1 jour</span><span class="v">${eur(p.avg1)}</span></div>
           <div class="cell"><span class="k">Moyenne 7 jours</span><span class="v">${eur(p.avg7)}</span></div>
           <div class="cell"><span class="k">Moyenne 30 jours</span><span class="v">${eur(p.avg30)}${p.avg30&&p.trend?` <span class="${p.trend>=p.avg30?"up":"down"}">${p.trend>=p.avg30?"▲":"▼"} ${Math.abs(Math.round((p.trend/p.avg30-1)*100))} %</span>`:""}</span></div>
-          <div class="cell"><span class="k">TCGplayer (USA)</span><span class="v">${eur(p.usd,"USD")}</span></div>
+          <div class="cell"><span class="k">TCGplayer (États-Unis)</span><span class="v">${eur(p.usd,"USD")}</span></div>
           ${prev!=null&&base!=null?`<div class="cell"><span class="k">Depuis l'actualisation précédente</span><span class="v ${base>=prev?"up":"down"}">${base>=prev?"+":""}${eur(base-prev)}</span></div>`:""}
         </div></div>
       <div class="sec"><div class="sec-h">Détails</div><div class="group">
         <div class="cell"><span class="k">Extension</span><span class="v">${esc(model.set)}</span></div>
         <div class="cell"><span class="k">Numéro</span><span class="v">${esc(model.numero)}${model.total?" / "+model.total:""}</span></div>
         ${model.rarete?`<div class="cell"><span class="k">Rareté</span><span class="v">${esc(model.rarete)}</span></div>`:""}
+        ${model.stade?`<div class="cell"><span class="k">Stade</span><span class="v">${esc(model.stade)}</span></div>`:""}
+        ${card.hp?`<div class="cell"><span class="k">Points de vie</span><span class="v">${esc(card.hp)} PV</span></div>`:""}
         ${model.illustrateur?`<div class="cell"><span class="k">Illustration</span><span class="v">${esc(model.illustrateur)}</span></div>`:""}
       </div></div>
-      ${owned?"":`<button class="btn btn-fill w" type="button" data-add>Ajouter à ma collection</button>`}
+      ${owned||isPick?"":`<button class="btn btn-fill w" type="button" data-add>Ajouter à ma collection</button>`}
+      ${isPick?"":`<button class="btn btn-tint w" type="button" data-vs>Comparer en VS</button>`}
       <div class="sec"><div class="sec-h">Voir les annonces</div><div class="group">
         <a class="cell link" href="https://www.cardmarket.com/fr/Pokemon/Products/Search?searchString=${cmq}" target="_blank" rel="noopener"><span class="ico" style="background:#1a5fb4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 7h16l-1.5 11a2 2 0 0 1-2 1.7h-9A2 2 0 0 1 5.5 18z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg></span><span class="k">Cardmarket</span><span class="chev">›</span></a>
         <a class="cell link" href="https://www.ebay.fr/sch/i.html?_nkw=${encodeURIComponent(model.nom+" "+model.numero+(model.total?"/"+model.total:""))}&LH_Sold=1&LH_Complete=1" target="_blank" rel="noopener"><span class="ico" style="background:#e5a50a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 18l5-6 4 3 7-9"/></svg></span><span class="k">eBay · ventes terminées</span><span class="chev">›</span></a>
       </div></div>
       ${owned?`<button class="btn btn-red w" type="button" data-del>Retirer de la collection</button>`:""}`;
     tilt(body.querySelector(".holo"));
-    body.querySelectorAll("[data-cond] button").forEach(b=>b.onclick=()=>{ st.etat=b.dataset.c; draw(); });
+    body.querySelector("[data-etat]").onclick=async()=>{ const v=await chooseCond(st.etat); if(v){ st.etat=v; draw(); } };
+    const pk=body.querySelector("[data-pick]");
+    if(pk) pk.onclick=()=>setSlot(pickSide,{ id:model.id, lang, etat:st.etat, variant:st.variant });
+    const vsb=body.querySelector("[data-vs]");
+    if(vsb) vsb.onclick=()=>{ const side = owned ? "a" : "b";
+      setSlot(side, { id:model.id, lang, etat:st.etat, variant:st.variant, uid: owned ? owned.uid : undefined }); };
     body.querySelectorAll("[data-var] button").forEach(b=>b.onclick=()=>{ st.variant=b.dataset.v; draw(); });
     body.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{ st.quantite=Math.max(1,(st.quantite||1)+(+b.dataset.q)); draw(); });
     const add=body.querySelector("[data-add]");
@@ -753,9 +882,9 @@ async function openCardSheet({ id, lang, etat, owned }){
   draw();
 }
 
-function confirmAction(text, label, fn){
+function confirmAction(text, label, fn, danger=true){
   const a=document.createElement("div"); a.className="action";
-  a.innerHTML=`<div class="action-in"><div class="g"><p>${esc(text)}</p><button type="button" class="red" data-y>${esc(label)}</button></div><div class="g"><button type="button" class="b" data-n>Annuler</button></div></div>`;
+  a.innerHTML=`<div class="action-in"><div class="g"><p>${esc(text)}</p><button type="button" class="${danger?"red":"b"}" data-y>${esc(label)}</button></div><div class="g"><button type="button" class="b" data-n>Annuler</button></div></div>`;
   document.body.appendChild(a);
   a.onclick=e=>{ if(e.target===a) a.remove(); };
   a.querySelector("[data-n]").onclick=()=>a.remove();
@@ -815,7 +944,7 @@ function renderCollection(){
   list.sort(sorts[sortBy]);
   grid.innerHTML=list.length?list.map(c=>{ const tp=trendPct(c);
     return `<button class="tile" type="button" data-uid="${esc(c.uid)}">${holoHTML(c,(c.quantite||1)>1?`<span class="qty">${c.quantite}</span>`:"")}
-      <span class="meta"><span class="n">${esc(c.nom)}</span><span class="s">${esc(c.set)} · ${esc(c.numero)} · ${esc(c.etat)}${c.variant==="reverse"?" · Rev.":""}</span>
+      <span class="meta"><span class="n">${esc(c.nom)}</span><span class="s">${esc(c.set)} · ${esc(c.numero)} · ${condShort(c.etat)}${c.variant==="reverse"?" · Holo inv.":""}</span>
       <span class="p">${baseValue(c.prix)!=null?eur(cardValue(c)):"Pas de cote"}${Math.abs(tp)>=.01?` <span class="${tp>=0?"up":"down"}" style="font-weight:500;font-size:13px">${tp>=0?"▲":"▼"}${Math.abs(Math.round(tp*100))} %</span>`:""}</span></span></button>`; }).join("")
     : `<p class="sec-f">Aucune carte ne correspond à cette recherche.</p>`;
   grid.querySelectorAll(".tile").forEach(t=>{ tilt(t.querySelector(".holo")); t.onclick=()=>{ const c=cards.find(x=>x.uid===t.dataset.uid); if(c) openCardSheet({id:c.id, lang:c.lang, owned:c}); }; });
@@ -842,6 +971,275 @@ async function refreshAll(){
   toast(fail ? `${ids.length-fail} cotes actualisées, ${fail} en échec` : "Cotes actualisées", !fail);
 }
 $("#refresh").onclick=refreshAll;
+
+/* ======================= Listes de choix (style iOS) ======================= */
+function pickList(title, options, current){
+  return new Promise(resolve=>{
+    const a=document.createElement("div"); a.className="action picker";
+    a.innerHTML=`<div class="action-in"><div class="g"><p>${esc(title)}</p>${options.map(o=>`<button type="button" data-v="${esc(o.value)}" style="height:${o.sub?62:56}px"><span>${esc(o.label)}${o.sub?`<small>${esc(o.sub)}</small>`:""}</span>${o.value===current?'<span class="ck">✓</span>':""}</button>`).join("")}</div>
+      <div class="g"><button type="button" class="b" data-n style="justify-content:center;color:var(--tint)">Annuler</button></div></div>`;
+    document.body.appendChild(a);
+    const done=v=>{ a.remove(); resolve(v); };
+    a.onclick=e=>{ if(e.target===a) done(null); };
+    a.querySelector("[data-n]").onclick=()=>done(null);
+    a.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>done(b.dataset.v));
+  });
+}
+const pctTxt = m => m===1 ? "cote de référence" : (m>1?"+":"−") + Math.round(Math.abs(m-1)*100) + " % sur la cote";
+const chooseCond = cur => pickList("État de la carte", COND.map(c=>({ value:c[0], label:c[1], sub:`« ${c[0]} » sur Cardmarket · ${pctTxt(c[3])}` })), cur);
+
+/* ======================= Échange : face-à-face VS ======================= */
+let trade = Object.assign({ a:null, b:null, start:"a" }, store.get("trade", {}));
+let trades = store.get("trades", []);
+let vsAnimate = false, tradeToken = 0;
+const saveTrade = () => store.set("trade", trade);
+const sideName = k => k==="a" ? "Ta carte" : "Sa carte";
+
+function setSlot(side, data){
+  trade[side] = { ...data, variant: data.variant || "normal" }; saveTrade();
+  pickSide = null; closeAllSheets();
+  vsAnimate = !!(trade.a && trade.b);
+  if(location.hash==="#echange") renderTrade(); else location.hash = "#echange";
+  toast(side==="a" ? "Ta carte est en place" : "Sa carte est en place");
+}
+$("#pickCancel").onclick = () => { pickSide=null; location.hash="#echange"; };
+
+async function chooseSource(side){
+  const opts=[];
+  if(cards.length) opts.push({ value:"coll", label:"Dans ma collection" });
+  opts.push({ value:"scan", label:"Scanner la carte" }, { value:"search", label:"Rechercher par nom et numéro" });
+  if(trade[side]) opts.push({ value:"clear", label:"Retirer du face-à-face" });
+  const v = await pickList(side==="a" ? "Ta carte, celle que tu donnes" : "Sa carte, celle qu'on te propose", opts, null);
+  if(v==="coll") openCollectionPicker(side);
+  else if(v==="scan"){ pickSide=side; location.hash="#scanner"; }
+  else if(v==="search"){ pickSide=side; openSearchSheet({ title:sideName(side), query:"", note:"Tape le nom et le numéro de la carte, par exemple Tortank 2/102.", onClose:()=>{ if(location.hash==="#echange") pickSide=null; } }); }
+  else if(v==="clear"){ trade[side]=null; saveTrade(); renderTrade(); }
+}
+
+function openCollectionPicker(side){
+  const list=[...cards].sort((x,y)=>cardValue(y)-cardValue(x));
+  const s=sheet(`${topBar("Fermer", sideName(side))}<div class="group clist">${list.map(c=>`<button class="cell ind" type="button" data-uid="${esc(c.uid)}">
+      <img class="thumb" src="${esc(imgUrl(c.image,"low"))}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+      <span class="k"><span class="t1">${esc(c.nom)}</span><span class="t2">${esc(c.set)} · ${esc(c.numero)} · ${condShort(c.etat)}</span></span>
+      <span class="v" style="color:var(--green);font-weight:600">${baseValue(c.prix)!=null?eur(unitValue(c)):"—"}</span></button>`).join("")}</div>`);
+  s.el.querySelector("[data-close]").onclick=s.close;
+  s.el.querySelectorAll("[data-uid]").forEach(b=>b.onclick=()=>{ const c=cards.find(x=>x.uid===b.dataset.uid); if(c) setSlot(side,{ id:c.id, lang:c.lang, etat:c.etat, variant:c.variant, uid:c.uid }); });
+}
+
+// ---- Puissance : données de combat et simulation ----
+const num = v => { const n=parseInt(String(v??"").replace(/[^\d]/g,""),10); return isNaN(n) ? 0 : n; };
+function fighter(card){
+  if(!card || card.category!=="Pokémon" || !card.hp) return null;
+  const all=(card.attacks||[]).map(a=>({ name:a.name, cost:(a.cost||[]).length, dmg:num(a.damage), raw:String(a.damage??"") }));
+  return { name:card.name, hp:+card.hp, type:(card.types||[])[0]||"", weak:card.weaknesses||[], res:card.resistances||[],
+    atks:all.filter(a=>a.dmg>0), retreat:card.retreat??null, stage:frStage(card.stage), moves:(card.attacks||[]).length+(card.abilities||[]).length };
+}
+function hit(att, a, def){
+  let d=a.dmg, w=false, r=false;
+  const wk=def.weak.find(x=>x.type===att.type);
+  if(wk){ const v=String(wk.value||"×2"); d = /[×x]/i.test(v) ? d*(num(v)||2) : d+num(v); w=true; }
+  const rs=def.res.find(x=>x.type===att.type);
+  if(rs){ d=Math.max(0, d-num(rs.value)); r=true; }
+  return { d, w, r };
+}
+// Une Énergie par tour, la meilleure attaque disponible ; faiblesses et résistances appliquées
+function simulate(F, first){
+  const hp=[F[0].hp, F[1].hp], en=[0,0], rounds=[];
+  if(!F[0].atks.length && !F[1].atks.length) return { winner:null, reason:"aucune", rounds };
+  for(let t=1; t<=15; t++){
+    const ev=[];
+    for(const k of [first, 1-first]){
+      const me=F[k], op=F[1-k]; en[k]++;
+      const ok=me.atks.filter(a=>a.cost<=en[k]);
+      if(!ok.length){ ev.push({ k, kind:"charge", e:en[k], need: me.atks.length ? Math.min(...me.atks.map(a=>a.cost)) : null }); continue; }
+      let best=null;
+      for(const a of ok){ const h=hit(me,a,op); if(!best || h.d>best.h.d || (h.d===best.h.d && a.cost<best.a.cost)) best={a,h}; }
+      hp[1-k]=Math.max(0, hp[1-k]-best.h.d);
+      ev.push({ k, kind:"attack", a:best.a, h:best.h, left:hp[1-k] });
+      if(hp[1-k]===0){ rounds.push(ev); return { winner:k, turns:t, rounds, hp }; }
+    }
+    rounds.push(ev);
+  }
+  const ra=hp[0]/F[0].hp, rb=hp[1]/F[1].hp;
+  return { winner: ra===rb ? null : (ra>rb?0:1), reason:"long", rounds, hp };
+}
+
+function timelineHTML(F, r){
+  const cls=k=>k===0?"side-a":"side-b", nm=k=>`<b class="${cls(k)}">${esc(F[k].name)}</b>`;
+  const out=[]; let i=0;
+  while(i<r.rounds.length){
+    const rd=r.rounds[i];
+    const chargeOnly = rd.every(e=>e.kind==="charge");
+    if(chargeOnly){
+      let j=i; while(j+1<r.rounds.length && r.rounds[j+1].every(e=>e.kind==="charge")) j++;
+      const last=r.rounds[j];
+      const lines=last.filter(e=>e.need!=null).map(e=>`<p>${nm(e.k)} attache ${e.e>1?e.e+" Énergies":"une Énergie"} (${e.e}/${e.need})</p>`).join("");
+      out.push(`<div class="turn"><span class="n">${i===j?`Tour ${i+1}`:`Tours ${i+1} à ${j+1}`}</span><div>${lines||"<p>Chacun prépare ses Énergies.</p>"}</div></div>`);
+      i=j+1; continue;
+    }
+    const lines=rd.map(e=>{
+      if(e.kind==="charge") return e.need==null ? "" : `<p>${nm(e.k)} attache une Énergie (${e.e}/${e.need})</p>`;
+      const tags=(e.h.w?'<span class="tag tw">Faiblesse</span>':"")+(e.h.r?'<span class="tag tr">Résistance</span>':"");
+      return `<p>${nm(e.k)} lance <b>${esc(e.a.name)}</b> : ${e.h.d} dégâts${tags}</p>` +
+        (e.left===0 ? `<p class="ko">${esc(F[1-e.k].name)} est K.O. !</p>` : `<p style="color:var(--label-2)">${esc(F[1-e.k].name)} : il reste ${e.left} PV</p>`);
+    }).join("");
+    out.push(`<div class="turn"><span class="n">Tour ${i+1}</span><div>${lines}</div></div>`);
+    i++;
+  }
+  if(r.reason==="long") out.push(`<div class="turn"><span class="n">Fin</span><div><p>Personne n'est K.O. après 15 tours.</p></div></div>`);
+  return out.join("");
+}
+
+function cmpRow(label, va, vb, mode, fmt=v=>v){
+  if(mode==="text") return `<div class="cmp head"><div class="l"><b>${esc(va||"—")}</b></div><span class="lab">${label}</span><div class="r"><b>${esc(vb||"—")}</b></div></div>`;
+  const has=v=>v!=null && !isNaN(v);
+  const sc=v=>!has(v) ? 0 : (mode==="low" ? (Math.max(has(va)?va:0, has(vb)?vb:0)+1-v) : v);
+  const sa=sc(va), sb=sc(vb), mx=Math.max(sa,sb)||1;
+  const wa=has(va)&&(!has(vb)||sa>sb), wb=has(vb)&&(!has(va)||sb>sa);
+  return `<div class="cmp"><div class="l${wa?" w":""}"><b>${has(va)?fmt(va,0):"—"}</b><i style="width:${Math.max(6,sa/mx*100)}%"></i></div>
+    <span class="lab">${label}</span><div class="r${wb?" w":""}"><b>${has(vb)?fmt(vb,1):"—"}</b><i style="width:${Math.max(6,sb/mx*100)}%"></i></div></div>`;
+}
+
+const SWAP_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3 8l4 4M3 8h13M17 20l4-4-4-4M21 16H8"/></svg>';
+const TROPHY='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8"/></svg>';
+
+async function renderTrade(animate){
+  animate = animate || vsAnimate; vsAnimate = false;
+  const token = ++tradeToken, arena=$("#arena"), out=$("#vsResults");
+  const load = s => s ? tcg(`${s.lang}/cards/${encodeURIComponent(s.id)}`).catch(()=>null) : Promise.resolve(null);
+  const [ca, cb] = await Promise.all([load(trade.a), load(trade.b)]);
+  if(token !== tradeToken) return;
+  const mk = (k, s, card) => {
+    if(!s) return { k, empty:true };
+    if(!card) return { k, missing:true, s };
+    const base = baseValue(priceOf(card, s.variant));
+    return { k, s, card, nom:card.name, image:card.image||"", type:typeKey(card.types, card.category), set:card.set?.name||"", numero:card.localId,
+      val: base!=null ? base*condMult(s.etat) : null, f: fighter(card) };
+  };
+  const A=mk("a",trade.a,ca), B=mk("b",trade.b,cb), both=!!(A.card && B.card);
+  const F = both && A.f && B.f ? [A.f, B.f] : null;
+  const rA = F ? simulate(F,0) : null, rB = F ? simulate(F,1) : null, r = trade.start==="b" ? rB : rA;
+  const win = r && r.winner!=null ? (r.winner===0?"a":"b") : null;
+
+  const slot = (m) => `<div class="slot ${m.k}${win===m.k?" win":""}">
+    <span class="who">${sideName(m.k)}</span>
+    <button type="button" class="pic" data-slot="${m.k}" aria-label="${m.card?"Changer":"Choisir"} ${m.k==="a"?"ta carte":"sa carte"}">
+      ${win===m.k?'<span class="crown">★ Plus forte</span>':""}
+      ${m.card ? holoHTML(m) : `<span class="slot-empty"><b>+</b>${m.missing?"Introuvable":"Choisir"}</span>`}
+    </button>
+    ${m.card ? `<span class="nm">${esc(m.nom)}</span>
+      <button type="button" class="st" data-cond-side="${m.k}">${esc(condName(m.s.etat))}${m.s.variant==="reverse"?" · holo inv.":""} ▾</button>
+      <span class="val">${m.val!=null?eur(m.val):"Pas de cote"}</span>` : ""}
+  </div>`;
+  arena.style.setProperty("--ca", A.card ? tColor(A.type) : "#3a4a6b");
+  arena.style.setProperty("--cb", B.card ? tColor(B.type) : "#6b4a3a");
+  arena.innerHTML = `<div class="slots">${slot(A)}<div class="vs-mid"><div class="vs">VS</div>${trade.a||trade.b?`<button class="swap" type="button" data-swap aria-label="Inverser les deux cartes">${SWAP_ICON}</button>`:""}</div>${slot(B)}</div>
+    ${both?`<div class="arena-foot"><button type="button" data-replay>Rejouer le VS</button><button type="button" data-clear>Vider</button></div>`:""}`;
+  arena.querySelectorAll(".holo").forEach(tilt);
+  arena.querySelectorAll("[data-slot]").forEach(b=>b.onclick=()=>chooseSource(b.dataset.slot));
+  arena.querySelectorAll("[data-cond-side]").forEach(b=>b.onclick=async()=>{ const k=b.dataset.condSide; const v=await chooseCond(trade[k].etat); if(v){ trade[k].etat=v; saveTrade(); renderTrade(); } });
+  const sw=arena.querySelector("[data-swap]"); if(sw) sw.onclick=()=>{ [trade.a, trade.b]=[trade.b, trade.a]; saveTrade(); renderTrade(true); };
+  const rp=arena.querySelector("[data-replay]"); if(rp) rp.onclick=()=>renderTrade(true);
+  const cl=arena.querySelector("[data-clear]"); if(cl) cl.onclick=()=>{ trade.a=null; trade.b=null; saveTrade(); renderTrade(); };
+
+  if(!both){
+    out.innerHTML = `<div class="sec-f" style="text-align:center">Touche <b>Choisir</b> pour placer ta carte à gauche et la carte qu'on te propose à droite. HoloCote compare leur valeur et simule un combat entre elles.</div>`;
+  } else {
+    // Valeur
+    let verdict;
+    if(A.val==null || B.val==null) verdict = { c:"even", ic:"?", t:"Cote inconnue", s:`Cardmarket n'a pas de prix pour ${esc((A.val==null?A:B).nom)}.` };
+    else {
+      const diff=B.val-A.val, pct=Math.abs(diff)/Math.max(A.val,B.val,0.01);
+      const ratio=Math.max(A.val,B.val)/Math.max(Math.min(A.val,B.val),0.01);
+      const more = ratio>=2 ? `${ratio>=10?Math.round(ratio):ratio.toFixed(1).replace(".",",")} fois plus` : `${Math.round((ratio-1)*100)} % de plus`;
+      if(pct<0.1 || Math.abs(diff)<1) verdict = { c:"even", ic:"=", t:"Échange équitable", s:`Écart de ${eur(Math.abs(diff))}, soit ${Math.round(pct*100)} %` };
+      else if(diff>0) verdict = { c:"good", ic:"↑", t:`Bonne affaire : tu gagnes ${eur(diff)}`, s:`Sa carte vaut ${more} que la tienne` };
+      else verdict = { c:"bad", ic:"↓", t:`Attention : tu perds ${eur(-diff)}`, s:`Ta carte vaut ${more} que la sienne` };
+    }
+    const ga=Math.max(A.val||0, 0.0001), gb=Math.max(B.val||0, 0.0001), tot=ga+gb;
+    const valueHTML = `<div class="sec"><div class="sec-h">Valeur</div><div class="group pad">
+        <div class="verdict ${verdict.c}"><span class="ic">${verdict.ic}</span><span>${verdict.t}<small>${verdict.s}</small></span></div>
+        <div class="balance"><div class="ba" style="flex-grow:${Math.max(.04,ga/tot)}"></div><div class="bb" style="flex-grow:${Math.max(.04,gb/tot)}"></div></div>
+        <div class="bal-legend"><span><span class="side-a">Ta carte</span><br><b>${A.val!=null?eur(A.val):"—"}</b></span><span style="text-align:right"><span class="side-b">Sa carte</span><br><b>${B.val!=null?eur(B.val):"—"}</b></span></div>
+      </div><div class="sec-f">Tendance Cardmarket du jour, ajustée selon l'état choisi pour chaque carte.</div></div>`;
+
+    // Puissance
+    let powerHTML;
+    if(!F){
+      const not=[A,B].filter(m=>!m.f).map(m=>`${esc(m.nom)} est une carte ${esc(m.card.category||"sans PV")}`).join(" et ");
+      powerHTML = `<div class="sec"><div class="sec-h">Puissance</div><div class="group pad"><div class="verdict even"><span class="ic">i</span><span>Pas de combat possible<small>Le face-à-face de puissance demande deux cartes Pokémon : ${not}.</small></span></div></div></div>`;
+    } else {
+      const best=f=>f.atks.length ? f.atks.reduce((x,y)=>y.dmg>x.dmg?y:x) : null;
+      const ba=best(F[0]), bb=best(F[1]);
+      const wk=f=>f.weak.map(w=>`${w.type} ${w.value}`).join(", ") || "Aucune";
+      const rows = [
+        cmpRow("Type", F[0].type, F[1].type, "text"),
+        cmpRow("Points de vie", F[0].hp, F[1].hp, "high", v=>v+" PV"),
+        cmpRow("Attaque la plus forte", ba?ba.dmg:null, bb?bb.dmg:null, "high", (v,k)=>{ const a=k?bb:ba; return v + (a && /\+/.test(a.raw) ? "+" : a && /[×x]/i.test(a.raw) ? "×" : ""); }),
+        cmpRow("Énergies pour attaquer", F[0].atks.length?Math.min(...F[0].atks.map(a=>a.cost)):null, F[1].atks.length?Math.min(...F[1].atks.map(a=>a.cost)):null, "low"),
+        cmpRow("Coût de retraite", F[0].retreat, F[1].retreat, "low"),
+        cmpRow("Attaques et talents", F[0].moves, F[1].moves, "high"),
+        cmpRow("Faiblesse", wk(F[0]), wk(F[1]), "text"),
+        cmpRow("Stade", F[0].stage, F[1].stage, "text"),
+      ].join("");
+      const same = rA.winner===rB.winner;
+      let head;
+      if(r.reason==="aucune") head = { t:"Aucun combat", s:"Aucune des deux cartes n'a d'attaque qui inflige des dégâts." };
+      else if(r.winner==null) head = { t:"Match nul", s:"Les deux cartes finissent à égalité." };
+      else head = { t: r.reason==="long" ? `${esc(F[r.winner].name)} prend l'avantage` : `${esc(F[r.winner].name)} met ${esc(F[1-r.winner].name)} K.O. au tour ${r.turns}`,
+                    s: same ? "Même résultat, peu importe qui commence." : "Le résultat change selon la carte qui attaque en premier." };
+      powerHTML = `<div class="sec"><div class="sec-h">Puissance</div><div class="group">${rows}</div></div>
+        <div class="sec"><div class="sec-h">Combat simulé</div>
+          <div class="seg" data-start><button type="button" data-s="a" aria-pressed="${trade.start!=="b"}">Ta carte commence</button><button type="button" data-s="b" aria-pressed="${trade.start==="b"}">Sa carte commence</button></div>
+          <div class="group"><div class="pad"><div class="duel-head"><span class="trophy">${TROPHY}</span><div><b>${head.t}</b><span>${head.s}</span></div></div></div>${timelineHTML(F, r)}</div>
+          <div class="sec-f">Combat simplifié : une Énergie par tour, chaque carte utilise sa meilleure attaque disponible, faiblesses et résistances comprises. Les effets des attaques et des talents ne sont pas comptés.</div></div>`;
+    }
+
+    // Validation
+    const own = A.s.uid && cards.find(c=>c.uid===A.s.uid);
+    const actionHTML = own
+      ? `<button class="btn btn-fill w" type="button" data-trade>Valider l'échange</button><div class="sec-f" style="text-align:center;margin-top:-12px">Ta carte quitte ta collection et la sienne y entre.</div>`
+      : `<div class="sec-f" style="text-align:center">Pour valider l'échange, choisis ta carte depuis ta collection.</div>`;
+    out.innerHTML = valueHTML + powerHTML + actionHTML;
+    out.querySelectorAll("[data-start] button").forEach(b=>b.onclick=()=>{ trade.start=b.dataset.s; saveTrade(); renderTrade(); });
+    const tb=out.querySelector("[data-trade]");
+    if(tb) tb.onclick=()=>confirmAction(`Tu donnes ${A.nom} et tu reçois ${B.nom}.`, "Valider l'échange", ()=>doTrade(A,B), false);
+  }
+
+  if(animate && both && !reduce){
+    arena.classList.remove("fight"); void arena.offsetWidth; arena.classList.add("fight");
+    out.classList.remove("reveal"); out.style.visibility="hidden";
+    setTimeout(()=>{ if(token!==tradeToken) return; out.style.visibility=""; out.classList.add("reveal"); }, 750);
+    setTimeout(()=>arena.classList.remove("fight"), 1300);
+    if(navigator.vibrate) setTimeout(()=>navigator.vibrate([20,40,30]), 500);
+  } else out.classList.remove("reveal");
+  renderTradeHistory();
+}
+
+function doTrade(A, B){
+  const own=cards.find(c=>c.uid===A.s.uid);
+  if(own){ if((own.quantite||1)>1) own.quantite--; else cards=cards.filter(c=>c!==own); }
+  const pB=priceOf(B.card, B.s.variant), baseB=baseValue(pB);
+  const mB={ id:B.card.id, lang:B.s.lang, nom:B.nom, image:B.image, set:B.set, setId:B.card.set?.id||"", numero:B.numero, total:B.card.set?.cardCount?.official||"",
+    rarete:frRar(B.card.rarity), stade:frStage(B.card.stage), type:B.type, illustrateur:B.card.illustrator||"", cmId:B.card.thirdParty?.cardmarket||null };
+  const same=cards.find(x=>x.id===mB.id && x.lang===mB.lang && x.etat===B.s.etat && x.variant===B.s.variant);
+  if(same) same.quantite=(same.quantite||1)+1;
+  else cards.push({ uid:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), ...mB, variant:B.s.variant, etat:B.s.etat, quantite:1,
+    ajouteLe:Date.now(), prix:pB, prixMaj:Date.now(), prixHist: baseB!=null ? [[Date.now(), baseB]] : [] });
+  trades.unshift({ t:Date.now(), a:{ nom:A.nom, image:A.image, val:A.val }, b:{ nom:B.nom, image:B.image, val:B.val } });
+  trades=trades.slice(0,30); store.set("trades", trades);
+  saveCards(); snapshotTotal();
+  trade={ a:null, b:null, start:trade.start }; saveTrade();
+  renderTrade(); toast("Échange enregistré");
+}
+
+function renderTradeHistory(){
+  $("#tradeHistSec").hidden = !trades.length;
+  $("#tradeHist").innerHTML = trades.map(t=>{ const d=(t.b.val??0)-(t.a.val??0);
+    return `<div class="cell"><span class="hist-pics"><img class="thumb" src="${esc(imgUrl(t.a.image,"low"))}" alt="" onerror="this.style.visibility='hidden'"><img class="thumb" src="${esc(imgUrl(t.b.image,"low"))}" alt="" onerror="this.style.visibility='hidden'"></span>
+      <span class="k"><span class="t1">${esc(t.a.nom)} → ${esc(t.b.nom)}</span><span class="t2">${new Date(t.t).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}</span></span>
+      <span class="v ${d>=0?"up":"down"}" style="font-weight:600">${d>=0?"+":"−"}${eur(Math.abs(d))}</span></div>`; }).join("");
+}
 
 /* ======================= Réglages ======================= */
 function renderSettings(){

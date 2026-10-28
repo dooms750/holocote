@@ -43,12 +43,23 @@ La clé est enregistrée uniquement dans ton téléphone. Elle n'est pas dans le
 
 - **Cartes, images et extensions** : base ouverte TCGdex (en français, anglais et japonais).
 - **Prix** : guide de prix **Cardmarket** (en euros, mis à jour chaque jour) et **TCGplayer** (en dollars), fournis par TCGdex.
-- La valeur affichée est la **tendance Cardmarket**, qui correspond à une carte Near Mint. Pour les autres états, l'app applique une décote : Mint ×1,15, EX ×0,75, Good ×0,55, Light Played ×0,4, Played ×0,25.
+- La valeur affichée est la **tendance Cardmarket**, qui correspond à une carte quasi neuve. Pour les autres états, l'app applique une décote : neuve +15 %, excellente −25 %, bonne −45 %, légèrement jouée −60 %, jouée −75 %.
 - Le bouton **Actualiser** de l'onglet Collection recharge toutes les cotes et trace l'évolution de la valeur de ta collection.
 
 Vérifie toujours les annonces Cardmarket avant une vente ou un achat important : les cartes gradées (PSA, PCA…) et certaines variantes ne sont pas couvertes par le guide de prix.
 
-## 5. Sauvegarder ta collection
+## 5. Comparer deux cartes avant un échange
+
+L'onglet **Échange** met deux cartes face à face : la tienne à gauche, celle qu'on te propose à droite. Touche une place vide pour choisir une carte dans ta collection, la scanner ou la chercher par son nom.
+
+- **Valeur** : l'app compare les deux cotes selon l'état de chaque carte et te dit si l'échange est équitable, à ton avantage ou à ton désavantage.
+- **Puissance** : points de vie, attaque la plus forte, énergies nécessaires, coût de retraite, faiblesse et stade, côte à côte.
+- **Combat simulé** : les deux Pokémon s'affrontent tour par tour (une Énergie par tour, meilleure attaque disponible, faiblesses et résistances comprises). Tu choisis qui attaque en premier. Les effets des attaques et des talents ne sont pas comptés.
+- **Valider l'échange** : si ta carte vient de ta collection, elle en sort et la carte reçue y entre. L'échange est noté dans l'historique.
+
+Depuis la fiche d'une carte, le bouton **Comparer en VS** l'envoie directement dans le face-à-face.
+
+## 6. Sauvegarder ta collection
 
 La collection est enregistrée dans Safari, sur ton téléphone. Dans **Réglages › Exporter ma collection**, tu obtiens un fichier de sauvegarde à garder dans Fichiers ou iCloud. **Importer une sauvegarde** la restaure, sur le même téléphone ou un autre.
 

@@ -1,6 +1,6 @@
 // HoloCote service worker : l'app s'ouvre même hors connexion,
 // les images de cartes sont gardées en cache, les prix viennent toujours du réseau.
-const VERSION = "holocote-v2";
+const VERSION = "holocote-v3";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icons/apple-touch-icon.png", "./icons/icon-192.png", "./icons/icon-512.png"];
 
 self.addEventListener("install", e => {
