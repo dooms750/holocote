@@ -513,7 +513,7 @@ function priceOf(card, variant){
   return { trend:g("trend"), avg:g("avg"), low:g("low"), avg1:g("avg1"), avg7:g("avg7"), avg30:g("avg30"),
     usd: tpv ? (tpv.marketPrice || tpv.midPrice || null) : null, updated: cm?.updated || tp?.updated || null };
 }
-const hasReverse = card => { const cm=card?.pricing?.cardmarket; return !!(cm && (cm["trend-holo"]>0 || cm["avg-holo"]>0)); };
+const hasReverse = card => { if(card?.variants && card.variants.reverse===false) return false; const cm=card?.pricing?.cardmarket; return !!(cm && (cm["trend-holo"]>0 || cm["avg-holo"]>0)); };
 const baseValue = p => p ? (p.trend ?? p.avg30 ?? p.avg ?? p.low ?? null) : null;
 
 /* ======================= Claude : identification de la photo ======================= */
