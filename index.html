@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HoloCote</title>
+<meta name="description" content="Scanne tes cartes Pokémon, consulte leur cote Cardmarket et gère ta collection.">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="HoloCote">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+/* iOS-style app: sticky blurred nav with large titles, live camera viewfinder, inset-grouped lists, translucent tab bar, modal sheets */
+:root{
+  --bg:#f2f2f7; --surface:#ffffff; --fill:rgba(118,118,128,.12); --sep:rgba(60,60,67,.18);
+  --label:#000; --label-2:rgba(60,60,67,.62); --label-3:rgba(60,60,67,.3);
+  --tint:#007aff; --tint-soft:rgba(0,122,255,.12); --green:#248a3d; --red:#ff3b30; --orange:#ff9500;
+  --bar:rgba(249,249,249,.8); --seg-on:#fff; --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);
+  --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,"Segoe UI",Roboto,sans-serif;
+  --round:ui-rounded,"SF Pro Rounded",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --foil:linear-gradient(115deg,#ff6b3d 0%,#ffd23f 18%,#4cc96a 34%,#3fa7ff 52%,#c46bff 70%,#ff8fd1 86%,#ff6b3d 100%);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#000; --surface:#1c1c1e; --fill:rgba(118,118,128,.24); --sep:rgba(84,84,88,.6);
+  --label:#fff; --label-2:rgba(235,235,245,.6); --label-3:rgba(235,235,245,.3);
+  --tint:#0a84ff; --tint-soft:rgba(10,132,255,.2); --green:#30d158; --red:#ff453a; --orange:#ff9f0a;
+  --bar:rgba(22,22,24,.82); --seg-on:#636366; --shadow:none; color-scheme:dark}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--label);font-family:var(--sf);font-size:17px;line-height:1.35;letter-spacing:-.01em;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  padding-top:env(safe-area-inset-top,0px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:16;background:var(--bar);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+button,input,select{font:inherit;color:inherit;letter-spacing:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--tint);outline-offset:2px;border-radius:10px}
+h1,h2,h3{margin:0;text-wrap:balance}
+
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;height:44px;display:flex;align-items:center;justify-content:center;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:.5px solid transparent;transition:background .2s,border-color .2s}
+.nav.solid{background:var(--bar);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom-color:var(--sep)}
+.nav .small{font-weight:600;opacity:0;transition:opacity .2s}
+.nav.solid .small{opacity:1}
+.nav .right{position:absolute;right:max(16px,env(safe-area-inset-right,0px));color:var(--tint);font-size:17px}
+
+.app{max-width:720px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-right,0px)) calc(110px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.view{display:flex;flex-direction:column;gap:22px}
+.large{font-size:34px;font-weight:700;line-height:1.12;letter-spacing:.01em}
+.subhead{font-size:15px;color:var(--label-2);margin-top:2px}
+
+.sec{display:flex;flex-direction:column;gap:7px}
+.sec-h{font-size:13px;text-transform:uppercase;color:var(--label-2);padding-inline:16px;display:flex;justify-content:space-between;gap:10px}
+.sec-f{font-size:13px;color:var(--label-2);padding-inline:16px;line-height:1.4}
+.group{background:var(--surface);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.cell{display:flex;align-items:center;gap:12px;min-height:44px;padding:10px 16px;position:relative;width:100%;text-align:left;color:inherit;text-decoration:none}
+.cell+.cell::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--sep)}
+.cell.ind+.cell::before,.cell+.cell.ind::before{left:60px}
+.cell .k{flex:1;min-width:0}
+.cell .v{color:var(--label-2);text-align:right;min-width:0;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums}
+.cell input{flex:1;min-width:0;border:0;outline:0;background:transparent;text-align:right;color:var(--label-2)}
+.cell.link .k{color:var(--tint)}
+.cell.danger .k{color:var(--red)}
+.chev{color:var(--label-3);font-size:22px;line-height:1;margin-left:-4px}
+.ico{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;color:#fff;flex:none}
+.ico svg{width:18px;height:18px}
+
+/* camera */
+.cam{position:relative;background:#000;border-radius:22px;aspect-ratio:3/4;max-height:64vh;width:100%;overflow:hidden;display:grid;place-items:center;isolation:isolate}
+.cam video,.cam .still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cam .still{z-index:1}
+.cam .shade{position:absolute;inset:0;z-index:2;pointer-events:none}
+.cam.off .frame{display:none}
+.frame{pointer-events:none;position:relative;width:58%;max-width:260px;aspect-ratio:63/88;border-radius:14px;z-index:3;box-shadow:0 0 0 2000px rgba(0,0,0,.42)}
+.frame>i{position:absolute;width:30px;height:30px;border:3.5px solid #fff}
+.frame>i:nth-child(1){top:-5px;left:-5px;border-right:0;border-bottom:0;border-radius:14px 0 0 0}
+.frame>i:nth-child(2){top:-5px;right:-5px;border-left:0;border-bottom:0;border-radius:0 14px 0 0}
+.frame>i:nth-child(3){bottom:-5px;left:-5px;border-right:0;border-top:0;border-radius:0 0 0 14px}
+.frame>i:nth-child(4){bottom:-5px;right:-5px;border-left:0;border-top:0;border-radius:0 0 14px 0}
+.frame .scan{position:absolute;left:0;right:0;top:0;height:35%;border-radius:12px;background:linear-gradient(180deg,transparent,rgba(255,214,10,.25) 85%,rgba(255,214,10,.95));opacity:0}
+.cam.busy .frame .scan{opacity:1;animation:sweep 1s ease-in-out infinite alternate}
+.cam.busy .frame>i{border-color:#ffd60a}
+@keyframes sweep{from{transform:translateY(-10%)}to{transform:translateY(190%)}}
+.pill{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:4;background:rgba(0,0,0,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font-size:13px;font-weight:600;padding:6px 12px;border-radius:99px;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis}
+.pill.yellow{background:#ffd60a;color:#000}
+.camoff{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:rgba(255,255,255,.75);text-align:center;padding:24px;font-size:15px;background:radial-gradient(70% 50% at 50% 40%,#1e2236,#000 75%)}
+.camoff .btn{min-height:44px}
+.controls{position:absolute;bottom:16px;left:0;right:0;z-index:4;display:flex;align-items:center;justify-content:center;gap:44px}
+.shutter{width:74px;height:74px;border-radius:50%;border:4px solid #fff;display:grid;place-items:center}
+.shutter::after{content:"";width:60px;height:60px;border-radius:50%;background:#fff;transition:transform .12s}
+.shutter:active::after{transform:scale(.86)}
+.shutter[disabled]{opacity:.5}
+.round{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:grid;place-items:center;color:#fff;position:relative}
+.round svg{width:22px;height:22px}
+.round input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.round[aria-pressed="true"]{background:#ffd60a;color:#000}
+.round.ghost{visibility:hidden}
+.flash{position:absolute;inset:0;background:#fff;z-index:5;opacity:0;pointer-events:none}
+.flash.go{animation:flash .35s ease-out}
+@keyframes flash{0%{opacity:.85}100%{opacity:0}}
+
+.btn{border-radius:14px;min-height:50px;padding:0 20px;font-weight:600;font-size:17px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;transition:opacity .15s}
+.btn:active{opacity:.7}
+.btn-fill{background:var(--tint);color:#fff}
+.btn-tint{background:var(--tint-soft);color:var(--tint)}
+.btn-red{background:var(--fill);color:var(--red)}
+.btn[disabled]{opacity:.35;pointer-events:none}
+.w{width:100%}
+.searchbar{display:flex;align-items:center;gap:8px;background:var(--fill);border-radius:10px;padding:0 10px;height:38px}
+.searchbar svg{width:16px;height:16px;color:var(--label-2);flex:none}
+.searchbar input{flex:1;min-width:0;background:transparent;border:0;outline:0;font-size:17px;height:100%}
+.searchbar input::placeholder{color:var(--label-2)}
+.searchbar button{color:var(--tint);font-weight:500}
+.notice{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);font-size:15px}
+.notice .ico{width:28px;height:28px}
+.notice b{display:block}
+.notice span{color:var(--label-2)}
+.notice a,.notice button.l{color:var(--tint);text-decoration:none;font-weight:500}
+
+/* lists of cards */
+.clist .cell{min-height:72px}
+.thumb{width:44px;aspect-ratio:63/88;border-radius:4px;object-fit:cover;background:var(--fill);flex:none}
+.clist .t1{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clist .t2{font-size:14px;color:var(--label-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clist .k{display:flex;flex-direction:column;gap:2px}
+.match{font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.04em}
+
+/* holo */
+.holo{--mx:50%;--my:50%;--rx:0deg;--ry:0deg;--t:#999;position:relative;aspect-ratio:63/88;max-width:100%;border-radius:4.5%/3.3%;
+  transform:perspective(800px) rotateX(var(--rx)) rotateY(var(--ry));transition:transform .3s cubic-bezier(.2,.8,.2,1);box-shadow:0 12px 28px rgba(0,0,0,.25),0 2px 6px rgba(0,0,0,.12);overflow:hidden;background:var(--fill)}
+.holo img{width:100%;height:100%;object-fit:cover;display:block}
+.holo .ph{width:100%;height:100%;display:grid;place-items:center;font-family:var(--round);font-weight:800;font-size:44px;color:rgba(255,255,255,.9);background:radial-gradient(circle at 50% 38%,color-mix(in srgb,var(--t) 55%,#fff),var(--t) 42%,#15121f)}
+.holo .shine{position:absolute;inset:0;mix-blend-mode:color-dodge;opacity:.32;pointer-events:none;background:radial-gradient(circle at var(--mx) var(--my),rgba(255,255,255,.7),transparent 45%),var(--foil);background-size:100% 100%,220% 220%;background-position:0 0,var(--mx) var(--my)}
+.qty{position:absolute;top:-7px;right:-7px;z-index:2;background:var(--red);color:#fff;font-size:12px;font-weight:700;min-width:22px;height:22px;border-radius:11px;display:grid;place-items:center;padding:0 6px;border:2px solid var(--bg)}
+.hero{display:flex;flex-direction:column;align-items:center;gap:14px;padding:6px 0 4px;text-align:center}
+.hero .holo{width:min(230px,62vw)}
+.hero h3{font-size:28px;font-weight:700;line-height:1.1}
+.hero .meta{font-size:15px;color:var(--label-2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.chip{font-size:13px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--fill);display:inline-flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--t,#ccc);flex:none}
+.value{font-family:var(--round);font-size:46px;font-weight:700;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.value-cap{font-size:13px;color:var(--label-2);margin-top:5px}
+.trio{display:grid;grid-template-columns:repeat(3,1fr)}
+.trio div{padding:12px 6px;text-align:center;position:relative;min-width:0}
+.trio div+div::before{content:"";position:absolute;left:0;top:12px;bottom:12px;border-left:.5px solid var(--sep)}
+.trio span{display:block;font-size:12px;color:var(--label-2);font-weight:500}
+.trio b{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.trio .mid b{color:var(--green)}
+.up{color:var(--green)} .down{color:var(--red)}
+
+.seg{display:flex;background:var(--fill);border-radius:9px;padding:2px}
+.seg button{flex:1;height:30px;border-radius:7px;font-size:13px;font-weight:500;white-space:nowrap;min-width:0}
+.seg button[aria-pressed="true"]{background:var(--seg-on);font-weight:600;box-shadow:0 3px 8px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)}
+
+/* collection */
+.widget{background:var(--surface);border-radius:20px;padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.w-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.w-lab{font-size:13px;font-weight:600;color:var(--label-2);text-transform:uppercase}
+.w-num{font-family:var(--round);font-size:40px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.w-delta{font-size:15px;font-weight:600}
+.w-side{text-align:right;font-size:15px;color:var(--label-2);min-width:0}
+.spark{width:100%;height:56px;display:block}
+.typebar{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--fill);gap:2px}
+.typebar div{background:var(--t)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--label-2)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.w-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;color:var(--label-2);border-top:.5px solid var(--sep);padding-top:10px}
+.w-foot button{color:var(--tint);font-size:15px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:22px 16px}
+@media (max-width:420px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 14px}}
+.tile{text-align:left;display:flex;flex-direction:column;gap:8px;min-width:0;position:relative}
+.tile .meta{display:flex;flex-direction:column;gap:1px;min-width:0;padding-inline:2px}
+.tile .n{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .s{font-size:13px;color:var(--label-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .p{font-size:15px;font-weight:600;color:var(--green);font-variant-numeric:tabular-nums}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:30px 20px}
+.empty .holo{width:92px;margin-bottom:6px}
+.empty h3{font-size:22px}
+.empty p{margin:0;color:var(--label-2);font-size:15px;max-width:34ch}
+
+/* tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--bar);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--sep);
+  padding:6px max(16px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;justify-content:center}
+.tabbar nav{display:flex;width:100%;max-width:460px}
+.tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:500;color:var(--label-2);text-decoration:none;padding:2px 0 6px;position:relative}
+.tabbar a[aria-current="page"]{color:var(--tint)}
+.tabbar svg{width:26px;height:26px}
+.badge{position:absolute;top:-2px;left:calc(50% + 6px);background:var(--red);color:#fff;font-size:11px;font-weight:600;min-width:18px;height:18px;border-radius:9px;display:grid;place-items:center;padding:0 5px}
+.badge:empty{display:none}
+
+/* sheets */
+.sheet-wrap{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;animation:dim .25s ease-out}
+@keyframes dim{from{background:rgba(0,0,0,0)}}
+.sheet{background:var(--bg);width:100%;max-width:640px;height:calc(100% - env(safe-area-inset-top,0px) - 12px);overflow:auto;border-radius:14px 14px 0 0;animation:rise .38s cubic-bezier(.2,.9,.25,1);overscroll-behavior:contain;
+  padding:0 max(16px,env(safe-area-inset-right,0px)) calc(28px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:22px}
+@keyframes rise{from{transform:translateY(100%)}}
+.sheet-top{position:sticky;top:0;background:var(--bg);z-index:3;padding-top:6px;display:flex;flex-direction:column;align-items:center;margin-bottom:-8px}
+.grabber{width:36px;height:5px;border-radius:3px;background:var(--label-3)}
+.sheet-nav{width:100%;height:44px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.sheet-nav .t{font-weight:600}
+.sheet-nav button{color:var(--tint);font-size:17px;justify-self:start}
+.sheet-nav button.r{justify-self:end;font-weight:600}
+.stepper{display:inline-flex;background:var(--fill);border-radius:9px;align-items:center}
+.stepper button{width:46px;height:32px;font-size:20px}
+.stepper output{min-width:28px;text-align:center;font-weight:600}
+.loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:50px 0;color:var(--label-2)}
+.spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--fill);border-top-color:var(--label-2);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.action{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center;padding:0 8px calc(8px + env(safe-area-inset-bottom,0px))}
+.action-in{width:100%;max-width:420px;display:flex;flex-direction:column;gap:8px;animation:rise .3s cubic-bezier(.2,.9,.25,1)}
+.action .g{background:var(--surface);border-radius:14px;overflow:hidden}
+.action .g p{margin:0;padding:14px 16px;text-align:center;font-size:13px;color:var(--label-2);border-bottom:.5px solid var(--sep)}
+.action .g button{width:100%;height:56px;font-size:20px;color:var(--tint)}
+.action .g button.red{color:var(--red)}
+.action .g button.b{font-weight:600}
+
+.toast{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:60;background:var(--surface);box-shadow:0 10px 40px rgba(0,0,0,.2);border-radius:99px;padding:10px 18px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px;animation:drop .35s cubic-bezier(.2,1.3,.4,1);max-width:calc(100% - 32px)}
+.toast svg{width:18px;height:18px;flex:none}
+@keyframes drop{from{transform:translate(-50%,-40px);opacity:0}}
+
+/* launch */
+.intro{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;transition:opacity .45s}
+.intro.out{opacity:0;pointer-events:none}
+.intro-in{display:flex;flex-direction:column;align-items:center;gap:18px}
+.appicon{width:116px;height:116px;border-radius:27px;background:var(--foil);background-size:300% 300%;position:relative;overflow:hidden;box-shadow:0 20px 50px rgba(120,80,255,.35),inset 0 0 0 1px rgba(255,255,255,.3);animation:pop .9s cubic-bezier(.2,1.5,.35,1) both,foil 2.4s linear infinite}
+.appicon::before{content:"";position:absolute;left:50%;top:50%;width:46px;height:64px;margin:-32px 0 0 -23px;border-radius:8px;background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.25);transform:rotate(-8deg);animation:tilt 1s .5s cubic-bezier(.2,1.4,.4,1) both}
+.appicon::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.75) 50%,transparent 65%);transform:translateX(-120%);animation:glint .9s 1.1s ease-in-out both}
+@keyframes pop{from{transform:scale(.3);opacity:0}}
+@keyframes tilt{from{transform:rotate(-40deg) scale(.4);opacity:0}}
+@keyframes glint{to{transform:translateX(120%)}}
+@keyframes foil{to{background-position:300% 0}}
+.intro-name{font-size:28px;font-weight:700;animation:fadeup .5s 1.2s both}
+.intro-tag{font-size:15px;color:var(--label-2);animation:fadeup .5s 1.4s both;margin-top:-12px}
+@keyframes fadeup{from{opacity:0;transform:translateY(10px)}}
+.intro.zoom .appicon{transition:transform .55s cubic-bezier(.6,0,.4,1),opacity .4s .15s;transform:scale(14);opacity:0}
+.intro.zoom .intro-name,.intro.zoom .intro-tag{transition:opacity .2s;opacity:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.holo{transition:none}.intro.zoom .appicon{transform:none}}
+</style>
+</head>
+<body>
+
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro-in"><div class="appicon"></div><div class="intro-name">HoloCote</div><div class="intro-tag">La cote de tes cartes Pokémon</div></div>
+</div>
+
+<header class="nav" id="nav"><span class="small" id="navTitle">Scanner</span><button class="right" id="navAction" type="button" hidden></button></header>
+
+<main class="app">
+  <!-- SCANNER -->
+  <section class="view" id="v-scanner">
+    <div><h1 class="large" data-title>Scanner</h1><div class="subhead">Cadre ta carte et appuie sur le déclencheur</div></div>
+
+    <div class="cam off" id="cam">
+      <video id="video" playsinline muted autoplay></video>
+      <img class="still" id="still" alt="" hidden>
+      <div class="camoff" id="camoff">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        <span id="camMsg">La caméra arrière s'affiche ici.</span>
+        <button class="btn btn-fill" id="camStart" type="button">Activer la caméra</button>
+      </div>
+      <div class="pill" id="pill" hidden>Carte à plat, sans reflet</div>
+      <div class="frame" id="frame"><i></i><i></i><i></i><i></i><div class="scan"></div></div>
+      <div class="controls">
+        <label class="round" title="Choisir dans la photothèque">
+          <input type="file" id="lib" accept="image/*" aria-label="Choisir une photo dans la photothèque">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.6" fill="currentColor"/></svg>
+        </label>
+        <button class="shutter" id="shutter" type="button" aria-label="Prendre la photo"></button>
+        <button class="round ghost" id="torch" type="button" aria-pressed="false" aria-label="Lampe">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L5 14h6l-1 8 8-12h-6z"/></svg>
+        </button>
+      </div>
+      <div class="flash" id="flash"></div>
+    </div>
+
+    <div class="notice" id="keyNotice" hidden>
+      <span class="ico" style="background:var(--orange)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 7v6M12 17h.01"/></svg></span>
+      <div><b>Identification automatique désactivée</b><span>Ajoute ta clé Claude dans <a href="#reglages">Réglages</a> pour reconnaître les cartes en photo. Sans clé, cherche-les par leur nom.</span></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h">Recherche par nom</div>
+      <form class="searchbar" id="searchForm" autocomplete="off">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input id="q" type="search" placeholder="Dracaufeu 4/102" enterkeyhint="search">
+        <button type="submit">Chercher</button>
+      </form>
+      <div class="sec-f">Ajoute le numéro (ex. 4/102 ou 199) pour tomber directement sur la bonne carte.</div>
+    </div>
+
+    <div class="sec" id="recentSec" hidden>
+      <div class="sec-h">Derniers scans</div>
+      <div class="group clist" id="recent"></div>
+    </div>
+  </section>
+
+  <!-- COLLECTION -->
+  <section class="view" id="v-collection" hidden>
+    <div><h1 class="large" data-title>Collection</h1></div>
+    <div class="widget">
+      <div class="w-top">
+        <div><div class="w-lab">Valeur estimée</div><div class="w-num" id="sTotal">0 €</div><div class="w-delta" id="sDelta"></div></div>
+        <div class="w-side"><span id="sCount">0 carte</span></div>
+      </div>
+      <svg class="spark" id="spark" viewBox="0 0 300 56" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="typebar" id="typebar"></div>
+      <div class="legend" id="legend"></div>
+      <div class="w-foot"><span id="sUpdated">Cotes jamais actualisées</span><button type="button" id="refresh">Actualiser</button></div>
+    </div>
+    <form class="searchbar" onsubmit="return false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="filter" type="search" placeholder="Rechercher dans ma collection">
+    </form>
+    <div class="seg" id="sortSeg" role="group" aria-label="Trier">
+      <button type="button" data-s="valeur" aria-pressed="true">Valeur</button>
+      <button type="button" data-s="hausse" aria-pressed="false">Hausse</button>
+      <button type="button" data-s="recent" aria-pressed="false">Récentes</button>
+      <button type="button" data-s="nom" aria-pressed="false">Nom</button>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- RÉGLAGES -->
+  <section class="view" id="v-reglages" hidden>
+    <div><h1 class="large" data-title>Réglages</h1></div>
+
+    <div class="sec">
+      <div class="sec-h">Identification par photo</div>
+      <div class="group">
+        <label class="cell"><span class="k">Clé API Claude</span><input id="apiKey" type="password" placeholder="sk-ant-…" autocomplete="off" spellcheck="false"></label>
+        <div class="cell"><span class="k">Modèle</span>
+          <div class="seg" id="modelSeg" style="width:190px"><button type="button" data-m="claude-haiku-5-5">Rapide</button><button type="button" data-m="claude-sonnet-5-5">Précis</button></div></div>
+      </div>
+      <div class="sec-f">Crée ta clé sur console.anthropic.com. Elle reste uniquement sur ce téléphone. Chaque photo analysée coûte environ un centime en mode Rapide.</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h">Base de cartes</div>
+      <div class="group">
+        <div class="cell"><span class="k">Langue des cartes</span>
+          <div class="seg" id="langSeg" style="width:190px"><button type="button" data-l="fr">FR</button><button type="button" data-l="en">EN</button><button type="button" data-l="ja">JP</button></div></div>
+      </div>
+      <div class="sec-f">Noms, extensions et images viennent de TCGdex. Les cotes sont celles du guide de prix Cardmarket (mis à jour chaque jour) et de TCGplayer.</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h">Sauvegarde</div>
+      <div class="group">
+        <button class="cell link" type="button" id="export"><span class="k">Exporter ma collection</span><span class="chev">›</span></button>
+        <label class="cell link" style="cursor:pointer"><span class="k">Importer une sauvegarde</span><span class="chev">›</span><input type="file" id="import" accept="application/json,.json" hidden></label>
+        <button class="cell danger" type="button" id="wipe"><span class="k">Vider la collection</span></button>
+      </div>
+      <div class="sec-f">La collection est enregistrée dans ce navigateur. Exporte-la de temps en temps pour la garder en sécurité ou la passer sur un autre appareil.</div>
+    </div>
+
+    <div class="sec-f" style="text-align:center">HoloCote · Données TCGdex et Cardmarket · Application non officielle, non affiliée à The Pokémon Company.</div>
+  </section>
+</main>
+
+<div class="tabbar">
+  <nav aria-label="Onglets">
+    <a href="#scanner" id="t-scanner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M3.5 8V6a2.5 2.5 0 0 1 2.5-2.5h2M16 3.5h2A2.5 2.5 0 0 1 20.5 6v2M20.5 16v2a2.5 2.5 0 0 1-2.5 2.5h-2M8 20.5H6A2.5 2.5 0 0 1 3.5 18v-2"/><rect x="8.5" y="7" width="7" height="10" rx="1.5"/></svg>Scanner</a>
+    <a href="#collection" id="t-collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3" y="6" width="11" height="15" rx="2"/><path d="M7 3h10a2 2 0 0 1 2 2v13"/></svg>Collection<span class="badge" id="tabCount"></span></a>
+    <a href="#reglages" id="t-reglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Réglages</a>
+  </nav>
+</div>
+
+<div id="sheetRoot"></div>
+<div id="toastRoot"></div>
+<canvas id="canvas" hidden></canvas>
+
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const API = "https://api.tcgdex.net/v2/";
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ======================= Données de référence ======================= */
+const TYPES = {
+  feu:{l:"Feu",c:"#ff6b3d"}, eau:{l:"Eau",c:"#3fa7ff"}, plante:{l:"Plante",c:"#3dbf5f"}, electrique:{l:"Électrique",c:"#f7c200"},
+  psy:{l:"Psy",c:"#b45cf0"}, combat:{l:"Combat",c:"#c9773a"}, obscurite:{l:"Obscurité",c:"#5b5f8e"}, metal:{l:"Métal",c:"#8aa0b6"},
+  fee:{l:"Fée",c:"#f27ac2"}, dragon:{l:"Dragon",c:"#6c5cf0"}, incolore:{l:"Incolore",c:"#b9b2a2"}, dresseur:{l:"Dresseur",c:"#2fc4b2"}, energie:{l:"Énergie",c:"#e8b52c"}
+};
+const TYPE_ALIASES = { feu:"feu",fire:"feu", eau:"eau",water:"eau", plante:"plante",grass:"plante", electrique:"electrique",lightning:"electrique",
+  psy:"psy",psychic:"psy", combat:"combat",fighting:"combat", obscurite:"obscurite",darkness:"obscurite", metal:"metal", fee:"fee",fairy:"fee",
+  dragon:"dragon", incolore:"incolore",colorless:"incolore", dresseur:"dresseur",trainer:"dresseur", energie:"energie",energy:"energie" };
+const COND = [["M","Mint",1.15],["NM","Near Mint",1],["EX","Excellent",.75],["GD","Good",.55],["LP","Light Played",.4],["PL","Played",.25]];
+const condMult = k => (COND.find(c=>c[0]===k)||COND[1])[2];
+const condName = k => (COND.find(c=>c[0]===k)||COND[1])[1];
+const tColor = t => (TYPES[t]||TYPES.incolore).c;
+const tLabel = t => (TYPES[t]||TYPES.incolore).l;
+const strip = s => String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
+const typeKey = (types, category) => { const t = types && types[0]; if(t && TYPE_ALIASES[strip(t)]) return TYPE_ALIASES[strip(t)];
+  const c = strip(category); if(c.startsWith("dresseur")||c.startsWith("trainer")) return "dresseur"; if(c.startsWith("energ")) return "energie"; return "incolore"; };
+const eur = (n, cur="EUR") => (n==null||isNaN(n)) ? "—" : new Intl.NumberFormat("fr-FR",{style:"currency",currency:cur,maximumFractionDigits:n<100?2:0}).format(n);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const normNum = s => String(s||"").trim().toUpperCase().replace(/^0+(?=\d)/,"");
+const ago = ts => { if(!ts) return "jamais"; const m=Math.round((Date.now()-ts)/60000); if(m<1) return "à l'instant"; if(m<60) return `il y a ${m} min`; const h=Math.round(m/60); if(h<24) return `il y a ${h} h`; return new Date(ts).toLocaleDateString("fr-FR",{day:"numeric",month:"short"}); };
+
+/* ======================= Stockage local ======================= */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem("hc-"+k); return v==null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem("hc-"+k, JSON.stringify(v)); return true; }catch(e){ toast("Mémoire du navigateur pleine", false); return false; } }
+};
+let cards = store.get("cards", []);
+let history = store.get("history", []);       // [[timestamp, total]]
+let recents = store.get("recents", []);       // derniers scans
+const settings = Object.assign({ key:"", model:"claude-haiku-5-5", lang:"fr", refreshed:0 }, store.get("settings", {}));
+const saveSettings = () => store.set("settings", settings);
+const saveCards = () => { store.set("cards", cards); renderCollection(); };
+
+/* ======================= UI : intro, nav, toast ======================= */
+const intro = $("#intro");
+let seen=false; try{ seen = sessionStorage.getItem("hc-intro")==="1"; }catch(e){}
+function endIntro(){ if(!intro.isConnected) return; intro.classList.add("zoom"); setTimeout(()=>intro.classList.add("out"), reduce?0:380); try{sessionStorage.setItem("hc-intro","1")}catch(e){} setTimeout(()=>intro.remove(),900); }
+if(seen) intro.remove(); else { intro.addEventListener("click", endIntro); setTimeout(endIntro, reduce?600:2300); }
+
+const nav = $("#nav");
+function navState(){ const t=document.querySelector(".view:not([hidden]) [data-title]"); if(t) nav.classList.toggle("solid", t.getBoundingClientRect().bottom < 50 + (parseFloat(getComputedStyle(document.body).paddingTop)||0)); }
+addEventListener("scroll", navState, {passive:true});
+
+const ICON_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>';
+const ICON_KO = '<svg viewBox="0 0 24 24" fill="none" stroke="#ff3b30" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 17h.01"/></svg>';
+let toastT;
+function toast(msg, ok=true){ const r=$("#toastRoot"); r.innerHTML=`<div class="toast" role="status">${ok?ICON_OK:ICON_KO}<span>${esc(msg)}</span></div>`; clearTimeout(toastT); toastT=setTimeout(()=>r.innerHTML="", ok?2200:3800); }
+
+function tilt(el){
+  if(reduce||!el) return;
+  el.addEventListener("pointermove",e=>{ const r=el.getBoundingClientRect(), x=(e.clientX-r.left)/r.width, y=(e.clientY-r.top)/r.height;
+    el.style.setProperty("--mx",x*100+"%"); el.style.setProperty("--my",y*100+"%"); el.style.setProperty("--ry",(x-.5)*18+"deg"); el.style.setProperty("--rx",(.5-y)*18+"deg"); });
+  el.addEventListener("pointerleave",()=>{ el.style.setProperty("--rx","0deg"); el.style.setProperty("--ry","0deg"); el.style.setProperty("--mx","50%"); el.style.setProperty("--my","50%"); });
+}
+const imgUrl = (base, q="high") => base ? `${base}/${q}.webp` : "";
+function holoHTML(c, extra=""){
+  const face = c.image ? `<img src="${esc(imgUrl(c.image))}" alt="${esc(c.nom)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'ph',textContent:'${esc((c.nom||'?').slice(0,1).toUpperCase())}'}))">`
+                       : `<div class="ph">${esc((c.nom||"?").slice(0,1).toUpperCase())}</div>`;
+  return `<div class="holo" style="--t:${tColor(c.type)}">${extra}${face}<div class="shine"></div></div>`;
+}
+
+/* ======================= Navigation par onglets ======================= */
+function route(){
+  const v = ["#collection","#reglages"].includes(location.hash) ? location.hash.slice(1) : "scanner";
+  ["scanner","collection","reglages"].forEach(n=>{ $("#v-"+n).hidden = n!==v; $("#t-"+n).setAttribute("aria-current", n===v?"page":"false"); });
+  $("#navTitle").textContent = {scanner:"Scanner",collection:"Collection",reglages:"Réglages"}[v];
+  if(v==="scanner"){ if(camWanted) startCam(); } else stopCam();
+  window.scrollTo(0,0); navState();
+}
+addEventListener("hashchange", route);
+
+/* ======================= TCGdex ======================= */
+const cache = new Map();
+async function tcg(path){
+  if(cache.has(path)) return cache.get(path);
+  const r = await fetch(API + path);
+  if(r.status===404) return null;
+  if(!r.ok) throw new Error("tcgdex "+r.status);
+  const j = await r.json(); cache.set(path, j); return j;
+}
+let setsByLang = {};
+async function sets(lang){
+  if(setsByLang[lang]) return setsByLang[lang];
+  const memo = store.get("sets-"+lang, null);
+  if(memo && Date.now()-memo.t < 3*864e5){ setsByLang[lang]=memo.m; return memo.m; }
+  const list = await tcg(lang+"/sets") || [];
+  const m = {}; list.forEach(s=>m[s.id]={name:s.name, official:s.cardCount?.official, total:s.cardCount?.total});
+  setsByLang[lang]=m; store.set("sets-"+lang,{t:Date.now(),m}); return m;
+}
+const setIdOf = id => id.slice(0, id.lastIndexOf("-"));
+
+// Cherche les cartes candidates : nom (+ numéro, + total de l'extension)
+async function findCards({name, number, total, lang}){
+  const L = lang || settings.lang;
+  let list = name ? await tcg(`${L}/cards?name=${encodeURIComponent(name)}`) : [];
+  list = Array.isArray(list) ? list : [];
+  const S = await sets(L).catch(()=>({}));
+  let out = list.map(c=>{ const sid=setIdOf(c.id); const s=S[sid]||{}; return {...c, lang:L, setName:s.name||sid, official:s.official, total:s.total}; });
+  if(number){
+    const n = normNum(number);
+    const byNum = out.filter(c=>normNum(c.localId)===n);
+    if(byNum.length) out = byNum;
+  }
+  if(total){
+    const t = parseInt(total,10);
+    out.forEach(c=>c.exact = !!t && (c.official===t || c.total===t));
+    out.sort((a,b)=>(b.exact|0)-(a.exact|0));
+  }
+  return out.slice(0, 60);
+}
+
+// Lit la recherche tapée : "Dracaufeu 4/102", "Pikachu 25", "Mew ex 151"
+function parseQuery(q){
+  const m = q.match(/(?:^|\s)#?([A-Za-z]{0,4}\d{1,4}[a-z]?)\s*(?:\/\s*([A-Za-z]{0,4}\d{1,4}))?\s*$/);
+  if(m && q.replace(m[0],"").trim()) return { name:q.replace(m[0],"").trim(), number:m[1], total:m[2] ? m[2].replace(/\D/g,"") : "" };
+  return { name:q.trim(), number:"", total:"" };
+}
+
+// Prix d'une carte TCGdex selon la variante
+function priceOf(card, variant){
+  const cm = card?.pricing?.cardmarket || null, tp = card?.pricing?.tcgplayer || null;
+  const sfx = variant==="reverse" ? "-holo" : "";
+  const g = k => { const v = cm ? cm[k+sfx] : null; return (typeof v==="number" && v>0) ? v : null; };
+  const tpv = tp ? (variant==="reverse" ? tp.reverse : (tp.holo || tp.normal)) : null;
+  return { trend:g("trend"), avg:g("avg"), low:g("low"), avg1:g("avg1"), avg7:g("avg7"), avg30:g("avg30"),
+    usd: tpv ? (tpv.marketPrice || tpv.midPrice || null) : null, updated: cm?.updated || tp?.updated || null };
+}
+const hasReverse = card => { const cm=card?.pricing?.cardmarket; return !!(cm && (cm["trend-holo"]>0 || cm["avg-holo"]>0)); };
+const baseValue = p => p ? (p.trend ?? p.avg30 ?? p.avg ?? p.low ?? null) : null;
+
+/* ======================= Claude : identification de la photo ======================= */
+const ID_PROMPT = `Tu regardes la photo d'une carte du jeu de cartes à collectionner Pokémon.
+Lis ce qui est imprimé et réponds uniquement avec un objet JSON :
+{"nom":"nom exactement comme imprimé","nom_fr":"nom en français","nom_en":"nom en anglais","numero":"numéro imprimé avant la barre (ex. 4, 025, TG05, SV049)","total":"nombre après la barre, ou vide","extension":"nom de l'extension si tu la reconnais, sinon vide","langue":"fr|en|ja|de|it|es|autre","etat":"M|NM|EX|GD|LP|PL selon l'usure visible","carte":true}
+Si ce n'est pas une carte Pokémon lisible, réponds {"carte":false,"raison":"courte explication en français"}.
+Recopie le numéro tel qu'il est imprimé, sans l'inventer.`;
+
+async function identify(blob){
+  const b64 = await new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(String(fr.result).split(",")[1]); fr.onerror=rej; fr.readAsDataURL(blob); });
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{ "content-type":"application/json", "x-api-key":settings.key, "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" },
+    body: JSON.stringify({ model:settings.model, max_tokens:400,
+      messages:[{ role:"user", content:[ {type:"image", source:{type:"base64", media_type:"image/jpeg", data:b64}}, {type:"text", text:ID_PROMPT} ] }] })
+  });
+  if(!r.ok){
+    let msg = "L'identification a échoué ("+r.status+").";
+    if(r.status===401) msg = "Clé API Claude refusée. Vérifie-la dans Réglages.";
+    else if(r.status===429) msg = "Trop de demandes. Patiente une minute.";
+    else if(r.status===400){ try{ const j=await r.json(); if(/credit|billing/i.test(j?.error?.message||"")) msg="Crédit API épuisé. Recharge ton compte sur console.anthropic.com."; else if(/model/i.test(j?.error?.message||"")) msg="Modèle indisponible. Essaie l'autre modèle dans Réglages."; }catch(e){} }
+    throw new Error(msg);
+  }
+  const j = await r.json();
+  const text = (j.content||[]).map(b=>b.text||"").join("");
+  const m = text.match(/\{[\s\S]*\}/);
+  if(!m) throw new Error("Réponse illisible. Reprends la photo.");
+  return JSON.parse(m[0]);
+}
+
+/* ======================= Caméra ======================= */
+const video = $("#video"), still = $("#still");
+let stream = null, track = null, camWanted = store.get("cam", false), busy = false;
+function pill(t, yellow){ const p=$("#pill"); p.hidden=!t; p.textContent=t||""; p.classList.toggle("yellow",!!yellow); }
+
+async function startCam(){
+  if(stream || !navigator.mediaDevices?.getUserMedia){ if(!navigator.mediaDevices?.getUserMedia) camError("Ce navigateur ne donne pas accès à la caméra. Utilise la photothèque."); return; }
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({ audio:false, video:{ facingMode:{ideal:"environment"}, width:{ideal:1920}, height:{ideal:1440} } });
+    track = stream.getVideoTracks()[0];
+    video.srcObject = stream; await video.play().catch(()=>{});
+    $("#camoff").hidden = true; $("#cam").classList.remove("off"); pill("Carte à plat, sans reflet");
+    camWanted = true; store.set("cam", true);
+    const caps = track.getCapabilities ? track.getCapabilities() : {};
+    $("#torch").classList.toggle("ghost", !caps.torch);
+    if(caps.focusMode && caps.focusMode.includes("continuous")) track.applyConstraints({advanced:[{focusMode:"continuous"}]}).catch(()=>{});
+  }catch(e){
+    stream = null;
+    camError(e && e.name==="NotAllowedError" ? "Accès à la caméra refusé. Autorise-le dans Réglages › Safari › Caméra, puis réessaie." :
+             location.protocol!=="https:" && location.hostname!=="localhost" ? "La caméra demande une adresse en https://." : "Caméra indisponible. Utilise la photothèque.");
+  }
+}
+function camError(msg){ $("#cam").classList.add("off"); $("#camoff").hidden=false; $("#camMsg").textContent=msg; pill(""); }
+function stopCam(){ if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; track=null; video.srcObject=null; $("#cam").classList.add("off"); $("#camoff").hidden=false; $("#camMsg").textContent="La caméra arrière s'affiche ici."; $("#torch").classList.add("ghost"); $("#torch").setAttribute("aria-pressed","false"); } }
+document.addEventListener("visibilitychange", ()=>{ if(document.hidden) stopCam(); else if(camWanted && $("#v-scanner").hidden===false) startCam(); });
+$("#camStart").onclick = startCam;
+$("#torch").onclick = async ()=>{ if(!track) return; const on = $("#torch").getAttribute("aria-pressed")!=="true";
+  try{ await track.applyConstraints({advanced:[{torch:on}]}); $("#torch").setAttribute("aria-pressed", String(on)); }catch(e){ toast("Lampe indisponible", false); } };
+
+// Capture : découpe la zone du cadre dans l'image de la caméra
+function captureFrame(){
+  const vw=video.videoWidth, vh=video.videoHeight; if(!vw) return null;
+  const cam=$("#cam").getBoundingClientRect(), fr=$("#frame").getBoundingClientRect();
+  const scale=Math.max(cam.width/vw, cam.height/vh), ox=(cam.width-vw*scale)/2, oy=(cam.height-vh*scale)/2;
+  const m=.08;
+  let sx=(fr.left-cam.left-ox-fr.width*m)/scale, sy=(fr.top-cam.top-oy-fr.height*m)/scale, sw=fr.width*(1+2*m)/scale, sh=fr.height*(1+2*m)/scale;
+  sx=Math.max(0,sx); sy=Math.max(0,sy); sw=Math.min(vw-sx,sw); sh=Math.min(vh-sy,sh);
+  const W=900, H=Math.round(W*sh/sw), cv=$("#canvas"); cv.width=W; cv.height=H;
+  cv.getContext("2d").drawImage(video,sx,sy,sw,sh,0,0,W,H);
+  return cv;
+}
+function fileToCanvas(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file), im=new Image();
+  im.onload=()=>{ const W=Math.min(1100,im.width), H=Math.round(im.height*W/im.width), cv=$("#canvas"); cv.width=W; cv.height=H; cv.getContext("2d").drawImage(im,0,0,W,H); URL.revokeObjectURL(u); res(cv); };
+  im.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error("Image illisible")); }; im.src=u; }); }
+const canvasBlob = cv => new Promise(r=>cv.toBlob(r,"image/jpeg",.85));
+
+$("#shutter").onclick = async ()=>{
+  if(busy) return;
+  if(!stream){ await startCam(); return; }
+  const cv = captureFrame(); if(!cv) return;
+  const f=$("#flash"); f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
+  if(navigator.vibrate) navigator.vibrate(15);
+  handleShot(cv);
+};
+$("#lib").addEventListener("change", async e=>{ const file=e.target.files?.[0]; e.target.value=""; if(!file||busy) return;
+  try{ handleShot(await fileToCanvas(file)); }catch(err){ toast(err.message,false); } });
+
+async function handleShot(cv){
+  still.src = cv.toDataURL("image/jpeg",.8); still.hidden=false;
+  const done = ()=>{ busy=false; $("#cam").classList.remove("busy"); $("#shutter").disabled=false; setTimeout(()=>{ still.hidden=true; pill(stream?"Carte à plat, sans reflet":""); }, 400); };
+  if(!settings.key){
+    pill("Ajoute ta clé Claude pour l'identification", true);
+    openSearchSheet({ title:"Quelle carte ?", query:"", note:"Sans clé Claude, tape le nom et le numéro de la carte." });
+    setTimeout(done, 300); return;
+  }
+  busy=true; $("#cam").classList.add("busy"); $("#shutter").disabled=true;
+  const steps=["Lecture du nom…","Lecture du numéro…","Recherche dans la base…"]; let k=0; pill(steps[0],true);
+  const iv=setInterval(()=>pill(steps[Math.min(++k,steps.length-1)],true),1400);
+  try{
+    const id = await identify(await canvasBlob(cv));
+    if(id.carte===false){ throw new Error(id.raison || "Carte non reconnue. Reprends la photo de face, sans reflet."); }
+    const lang = ["fr","en","ja"].includes(id.langue) ? id.langue : settings.lang;
+    const nameFor = l => l==="fr" ? (id.nom_fr||id.nom) : l==="en" ? (id.nom_en||id.nom) : id.nom;
+    let found = await findCards({ name:nameFor(lang), number:id.numero, total:id.total, lang });
+    if(!found.length && lang!=="en") found = await findCards({ name:id.nom_en||id.nom, number:id.numero, total:id.total, lang:"en" });
+    clearInterval(iv);
+    const q = [nameFor(lang), id.numero && (id.numero + (id.total?"/"+id.total:""))].filter(Boolean).join(" ");
+    const exact = found.filter(c=>c.exact);
+    if(exact.length===1 || (found.length===1 && id.numero)) openCardSheet({ id:(exact[0]||found[0]).id, lang:(exact[0]||found[0]).lang, etat:id.etat });
+    else openSearchSheet({ title:"Choisis ta carte", query:q, results:found, etat:id.etat,
+      note: found.length ? `${found.length} carte${found.length>1?"s":""} correspondent. Touche la tienne.` : "Aucune carte trouvée. Corrige le nom ou le numéro." });
+  }catch(err){ clearInterval(iv); toast(err.message || "Identification impossible", false); }
+  finally{ clearInterval(iv); done(); }
+}
+
+/* ======================= Recherche manuelle ======================= */
+$("#searchForm").addEventListener("submit", e=>{ e.preventDefault(); const q=$("#q").value.trim(); if(!q) return; $("#q").blur(); openSearchSheet({ title:"Résultats", query:q }); });
+
+function rowHTML(c){
+  return `<button class="cell ind" type="button" data-id="${esc(c.id)}" data-lang="${esc(c.lang)}">
+    <img class="thumb" src="${esc(imgUrl(c.image,"low"))}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+    <span class="k">${c.exact?'<span class="match">Correspondance exacte</span>':""}<span class="t1">${esc(c.name)}</span><span class="t2">${esc(c.setName)} · ${esc(c.localId)}${c.official?" / "+c.official:""}</span></span><span class="chev">›</span></button>`;
+}
+
+/* ======================= Feuilles (sheets) ======================= */
+const root = $("#sheetRoot");
+let sheetStack = 0;
+function sheet(html, { onClose } = {}){
+  const wrap=document.createElement("div"); wrap.className="sheet-wrap";
+  wrap.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+  root.appendChild(wrap); sheetStack++; document.body.style.overflow="hidden";
+  const close=()=>{ wrap.remove(); sheetStack--; if(!sheetStack) document.body.style.overflow=""; removeEventListener("keydown",key); onClose&&onClose(); };
+  const key=e=>{ if(e.key==="Escape" && wrap===root.lastElementChild) close(); };
+  addEventListener("keydown",key);
+  wrap.addEventListener("click",e=>{ if(e.target===wrap) close(); });
+  return { el:wrap.querySelector(".sheet"), close };
+}
+const topBar = (left, title, right) => `<div class="sheet-top"><div class="grabber"></div><div class="sheet-nav"><button type="button" data-close>${left}</button><span class="t">${title}</span>${right||"<span></span>"}</div></div>`;
+
+async function openSearchSheet({ title, query, results, note, etat }){
+  const s = sheet(`${topBar("Fermer", esc(title))}
+    <form class="searchbar" data-f autocomplete="off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input type="search" value="${esc(query)}" placeholder="Nom et numéro" enterkeyhint="search" data-q><button type="submit">Chercher</button></form>
+    <div data-res></div>`);
+  s.el.querySelector("[data-close]").onclick=s.close;
+  const res=s.el.querySelector("[data-res]");
+  const show=(list, msg)=>{
+    res.innerHTML = (msg?`<div class="sec-f" style="margin-bottom:8px">${esc(msg)}</div>`:"") + (list.length?`<div class="group clist">${list.map(rowHTML).join("")}</div>`:"");
+    res.querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>openCardSheet({id:b.dataset.id, lang:b.dataset.lang, etat}));
+  };
+  const run=async q=>{
+    res.innerHTML=`<div class="loading"><div class="spin"></div>Recherche…</div>`;
+    try{
+      const p=parseQuery(q);
+      let list=await findCards(p);
+      if(!list.length && settings.lang!=="en") list=await findCards({...p, lang:"en"});
+      show(list, list.length ? (list.length>=60?"Beaucoup de résultats : ajoute le numéro pour affiner.":"") : "Aucune carte trouvée. Vérifie l'orthographe, ou essaie le nom anglais.");
+    }catch(e){ show([], "La base de cartes ne répond pas. Vérifie ta connexion."); }
+  };
+  s.el.querySelector("[data-f]").addEventListener("submit",e=>{ e.preventDefault(); const q=s.el.querySelector("[data-q]").value.trim(); if(q){ s.el.querySelector("[data-q]").blur(); run(q); } });
+  if(results) show(results, note); else if(query) run(query); else { show([], note); setTimeout(()=>s.el.querySelector("[data-q]").focus(), 350); }
+}
+
+async function openCardSheet({ id, lang, etat, owned }){
+  const s = sheet(`${topBar(owned?"Annuler":"Fermer", owned?"Ma carte":"Carte", owned?'<button type="button" class="r" data-save>OK</button>':"")}<div data-body><div class="loading"><div class="spin"></div>Chargement de la cote…</div></div>`);
+  s.el.querySelector("[data-close]").onclick=s.close;
+  const body=s.el.querySelector("[data-body]");
+  let card;
+  try{ card = await tcg(`${lang}/cards/${encodeURIComponent(id)}`); }catch(e){ card=null; }
+  if(!card){ body.innerHTML=`<div class="empty"><h3>Carte introuvable</h3><p>La base de cartes ne répond pas. Vérifie ta connexion et réessaie.</p></div>`; return; }
+
+  const st = owned ? {...owned} : { variant:"normal", etat: COND.some(c=>c[0]===etat)?etat:"NM", quantite:1 };
+  const model = {
+    id:card.id, lang, nom:card.name, image:card.image||"", set:card.set?.name||"", setId:card.set?.id||"", numero:card.localId,
+    total:card.set?.cardCount?.official||"", rarete:card.rarity||"", type:typeKey(card.types, card.category), illustrateur:card.illustrator||"",
+    cmId: card.thirdParty?.cardmarket || null
+  };
+  if(!owned) pushRecent(model);
+
+  const draw=()=>{
+    const p = priceOf(card, st.variant), base = baseValue(p), val = base!=null ? base*condMult(st.etat)*(st.quantite||1) : null;
+    const prev = owned?.prixHist?.length>1 ? owned.prixHist[owned.prixHist.length-2][1] : null;
+    const rev = hasReverse(card);
+    const cmq = encodeURIComponent(model.nom);
+    body.innerHTML = `
+      <div class="hero">${holoHTML(model)}
+        <div><h3>${esc(model.nom)}</h3><div class="meta">${esc(model.set)} · ${esc(model.numero)}${model.total?" / "+model.total:""}</div></div>
+        <div class="chips"><span class="chip"><span class="dot" style="--t:${tColor(model.type)}"></span>${tLabel(model.type)}</span>${model.rarete?`<span class="chip">${esc(model.rarete)}</span>`:""}<span class="chip">${esc(lang.toUpperCase())}</span></div>
+        <div><div class="value">${val!=null?eur(val):"Pas de cote"}</div>
+          <div class="value-cap">${val!=null?`${(st.quantite||1)>1?st.quantite+" ex. · ":""}${condName(st.etat)} · tendance Cardmarket`:"Cardmarket n'a pas de prix pour cette carte"}</div></div>
+      </div>
+      ${rev?`<div class="sec"><div class="sec-h">Version</div><div class="seg" data-var><button type="button" data-v="normal" aria-pressed="${st.variant==="normal"}">Normale</button><button type="button" data-v="reverse" aria-pressed="${st.variant==="reverse"}">Reverse</button></div></div>`:""}
+      <div class="sec"><div class="sec-h">État de ton exemplaire</div><div class="seg" data-cond>${COND.map(c=>`<button type="button" data-c="${c[0]}" aria-pressed="${c[0]===st.etat}" title="${c[1]}">${c[0]}</button>`).join("")}</div>
+        <div class="sec-f">La tendance Cardmarket correspond à une carte Near Mint. Les autres états sont estimés par une décote.</div></div>
+      ${owned?`<div class="group"><div class="cell"><span class="k">Exemplaires</span><span class="stepper"><button type="button" data-q="-1" aria-label="Retirer un exemplaire">−</button><output>${st.quantite||1}</output><button type="button" data-q="1" aria-label="Ajouter un exemplaire">+</button></span></div></div>`:""}
+      <div class="sec"><div class="sec-h"><span>Cardmarket</span><span>${p.updated?"MAJ "+new Date(p.updated).toLocaleDateString("fr-FR",{day:"numeric",month:"short"}):""}</span></div>
+        <div class="group trio"><div><span>Prix bas</span><b>${eur(p.low)}</b></div><div class="mid"><span>Tendance</span><b>${eur(p.trend)}</b></div><div><span>Moyenne</span><b>${eur(p.avg)}</b></div></div>
+        <div class="group">
+          <div class="cell"><span class="k">Moyenne 1 jour</span><span class="v">${eur(p.avg1)}</span></div>
+          <div class="cell"><span class="k">Moyenne 7 jours</span><span class="v">${eur(p.avg7)}</span></div>
+          <div class="cell"><span class="k">Moyenne 30 jours</span><span class="v">${eur(p.avg30)}${p.avg30&&p.trend?` <span class="${p.trend>=p.avg30?"up":"down"}">${p.trend>=p.avg30?"▲":"▼"} ${Math.abs(Math.round((p.trend/p.avg30-1)*100))} %</span>`:""}</span></div>
+          <div class="cell"><span class="k">TCGplayer (USA)</span><span class="v">${eur(p.usd,"USD")}</span></div>
+          ${prev!=null&&base!=null?`<div class="cell"><span class="k">Depuis l'actualisation précédente</span><span class="v ${base>=prev?"up":"down"}">${base>=prev?"+":""}${eur(base-prev)}</span></div>`:""}
+        </div></div>
+      <div class="sec"><div class="sec-h">Détails</div><div class="group">
+        <div class="cell"><span class="k">Extension</span><span class="v">${esc(model.set)}</span></div>
+        <div class="cell"><span class="k">Numéro</span><span class="v">${esc(model.numero)}${model.total?" / "+model.total:""}</span></div>
+        ${model.rarete?`<div class="cell"><span class="k">Rareté</span><span class="v">${esc(model.rarete)}</span></div>`:""}
+        ${model.illustrateur?`<div class="cell"><span class="k">Illustration</span><span class="v">${esc(model.illustrateur)}</span></div>`:""}
+      </div></div>
+      ${owned?"":`<button class="btn btn-fill w" type="button" data-add>Ajouter à ma collection</button>`}
+      <div class="sec"><div class="sec-h">Voir les annonces</div><div class="group">
+        <a class="cell link" href="https://www.cardmarket.com/fr/Pokemon/Products/Search?searchString=${cmq}" target="_blank" rel="noopener"><span class="ico" style="background:#1a5fb4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 7h16l-1.5 11a2 2 0 0 1-2 1.7h-9A2 2 0 0 1 5.5 18z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg></span><span class="k">Cardmarket</span><span class="chev">›</span></a>
+        <a class="cell link" href="https://www.ebay.fr/sch/i.html?_nkw=${encodeURIComponent(model.nom+" "+model.numero+(model.total?"/"+model.total:""))}&LH_Sold=1&LH_Complete=1" target="_blank" rel="noopener"><span class="ico" style="background:#e5a50a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 18l5-6 4 3 7-9"/></svg></span><span class="k">eBay · ventes terminées</span><span class="chev">›</span></a>
+      </div></div>
+      ${owned?`<button class="btn btn-red w" type="button" data-del>Retirer de la collection</button>`:""}`;
+    tilt(body.querySelector(".holo"));
+    body.querySelectorAll("[data-cond] button").forEach(b=>b.onclick=()=>{ st.etat=b.dataset.c; draw(); });
+    body.querySelectorAll("[data-var] button").forEach(b=>b.onclick=()=>{ st.variant=b.dataset.v; draw(); });
+    body.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{ st.quantite=Math.max(1,(st.quantite||1)+(+b.dataset.q)); draw(); });
+    const add=body.querySelector("[data-add]");
+    if(add) add.onclick=()=>{
+      const same=cards.find(x=>x.id===model.id && x.lang===lang && x.etat===st.etat && x.variant===st.variant);
+      if(same){ same.quantite=(same.quantite||1)+1; }
+      else cards.push({ uid:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), ...model, variant:st.variant, etat:st.etat, quantite:1,
+        ajouteLe:Date.now(), prix:p, prixMaj:Date.now(), prixHist:base!=null?[[Date.now(),base]]:[] });
+      saveCards(); snapshotTotal();
+      toast(same?`Exemplaire ajouté (${same.quantite})`:"Ajoutée à ta collection");
+      add.textContent="Dans ta collection"; add.disabled=true;
+    };
+    const del=body.querySelector("[data-del]");
+    if(del) del.onclick=()=>confirmAction(`Retirer ${model.nom} de ta collection ?`, "Retirer la carte", ()=>{ cards=cards.filter(x=>x.uid!==owned.uid); saveCards(); snapshotTotal(); s.close(); toast("Carte retirée"); });
+    const save=s.el.querySelector("[data-save]");
+    if(save) save.onclick=()=>{ const i=cards.findIndex(x=>x.uid===owned.uid); if(i>=0){ cards[i]={...cards[i], etat:st.etat, variant:st.variant, quantite:st.quantite, prix:priceOf(card,st.variant), prixMaj:Date.now()}; saveCards(); } s.close(); toast("Enregistré"); };
+  };
+  draw();
+}
+
+function confirmAction(text, label, fn){
+  const a=document.createElement("div"); a.className="action";
+  a.innerHTML=`<div class="action-in"><div class="g"><p>${esc(text)}</p><button type="button" class="red" data-y>${esc(label)}</button></div><div class="g"><button type="button" class="b" data-n>Annuler</button></div></div>`;
+  document.body.appendChild(a);
+  a.onclick=e=>{ if(e.target===a) a.remove(); };
+  a.querySelector("[data-n]").onclick=()=>a.remove();
+  a.querySelector("[data-y]").onclick=()=>{ a.remove(); fn(); };
+}
+
+/* ======================= Derniers scans ======================= */
+function pushRecent(m){ recents=[{id:m.id,lang:m.lang,nom:m.nom,set:m.set,numero:m.numero,total:m.total,image:m.image}, ...recents.filter(r=>!(r.id===m.id&&r.lang===m.lang))].slice(0,5); store.set("recents",recents); renderRecent(); }
+function renderRecent(){
+  $("#recentSec").hidden=!recents.length;
+  $("#recent").innerHTML=recents.map(r=>rowHTML({id:r.id,lang:r.lang,name:r.nom,setName:r.set,localId:r.numero,official:r.total,image:r.image})).join("");
+  $$("#recent [data-id]").forEach(b=>b.onclick=()=>openCardSheet({id:b.dataset.id,lang:b.dataset.lang}));
+}
+
+/* ======================= Collection ======================= */
+let sortBy="valeur";
+const unitValue = c => { const b=baseValue(c.prix); return b!=null ? b*condMult(c.etat) : 0; };
+const cardValue = c => unitValue(c)*(c.quantite||1);
+const trendPct = c => { const h=c.prixHist||[]; if(h.length<2||!h[h.length-2][1]) return 0; return h[h.length-1][1]/h[h.length-2][1]-1; };
+function totalValue(){ return cards.reduce((a,c)=>a+cardValue(c),0); }
+function snapshotTotal(){ const t=totalValue(), now=Date.now(); const last=history[history.length-1];
+  if(last && now-last[0] < 6*3600e3) history[history.length-1]=[now,t]; else history.push([now,t]);
+  history=history.slice(-120); store.set("history",history); renderCollection(); }
+
+function sparkline(){
+  const svg=$("#spark"), h=history.filter(x=>x[1]!=null);
+  if(h.length<2){ svg.innerHTML=`<text x="150" y="32" text-anchor="middle" font-size="12" fill="currentColor" opacity=".45">L'évolution apparaîtra après quelques actualisations</text>`; svg.style.color="var(--label-2)"; return; }
+  const xs=h.map(p=>p[0]), ys=h.map(p=>p[1]), x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+  const X=t=>4+(x1===x0?0:(t-x0)/(x1-x0))*292, Y=v=>50-(y1===y0?.5:(v-y0)/(y1-y0))*42;
+  const pts=h.map(p=>`${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`);
+  const up=ys[ys.length-1]>=ys[0], col=up?"var(--green)":"var(--red)";
+  svg.innerHTML=`<defs><linearGradient id="g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${up?"#34c759":"#ff3b30"}" stop-opacity=".28"/><stop offset="1" stop-color="${up?"#34c759":"#ff3b30"}" stop-opacity="0"/></linearGradient></defs>
+    <polygon points="4,56 ${pts.join(" ")} 296,56" fill="url(#g)"/><polyline points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="${X(xs[xs.length-1])}" cy="${Y(ys[ys.length-1])}" r="3.5" fill="${col}"/>`;
+}
+
+function renderCollection(){
+  const n=cards.reduce((a,c)=>a+(c.quantite||1),0), total=totalValue();
+  $("#tabCount").textContent=n||"";
+  $("#sTotal").textContent=eur(total);
+  $("#sCount").textContent=n+(n>1?" cartes":" carte");
+  const h=history; const d = h.length>1 ? total - h[h.length-2][1] : null;
+  $("#sDelta").innerHTML = d!=null && Math.abs(d)>=.01 ? `<span class="${d>=0?"up":"down"}">${d>=0?"▲ +":"▼ "}${eur(d)}</span> <span style="color:var(--label-2);font-weight:400">depuis la dernière fois</span>` : "";
+  $("#sUpdated").textContent = "Cotes actualisées " + ago(settings.refreshed);
+  sparkline();
+  const byType={}; cards.forEach(c=>byType[c.type]=(byType[c.type]||0)+(c.quantite||1));
+  const ent=Object.entries(byType).sort((a,b)=>b[1]-a[1]);
+  $("#typebar").innerHTML=ent.map(([t,k])=>`<div style="--t:${tColor(t)};width:${k/n*100}%" title="${tLabel(t)} : ${k}"></div>`).join("");
+  $("#legend").innerHTML=ent.map(([t,k])=>`<span><span class="dot" style="--t:${tColor(t)}"></span>${tLabel(t)} ${k}</span>`).join("");
+  const grid=$("#grid");
+  if(!cards.length){ grid.style.display="block";
+    grid.innerHTML=`<div class="empty">${holoHTML({nom:"+",type:"electrique"})}<h3>Aucune carte</h3><p>Scanne une carte puis touche « Ajouter à ma collection ». Sa cote Cardmarket s'ajoutera à ton total.</p><a class="btn btn-tint" href="#scanner">Scanner une carte</a></div>`; return; }
+  grid.style.display="";
+  const f=strip($("#filter").value);
+  let list=cards.filter(c=>!f||strip(c.nom+" "+c.set+" "+c.numero).includes(f));
+  const sorts={ nom:(a,b)=>a.nom.localeCompare(b.nom,"fr"), recent:(a,b)=>(b.ajouteLe||0)-(a.ajouteLe||0), hausse:(a,b)=>trendPct(b)-trendPct(a), valeur:(a,b)=>cardValue(b)-cardValue(a) };
+  list.sort(sorts[sortBy]);
+  grid.innerHTML=list.length?list.map(c=>{ const tp=trendPct(c);
+    return `<button class="tile" type="button" data-uid="${esc(c.uid)}">${holoHTML(c,(c.quantite||1)>1?`<span class="qty">${c.quantite}</span>`:"")}
+      <span class="meta"><span class="n">${esc(c.nom)}</span><span class="s">${esc(c.set)} · ${esc(c.numero)} · ${esc(c.etat)}${c.variant==="reverse"?" · Rev.":""}</span>
+      <span class="p">${baseValue(c.prix)!=null?eur(cardValue(c)):"Pas de cote"}${Math.abs(tp)>=.01?` <span class="${tp>=0?"up":"down"}" style="font-weight:500;font-size:13px">${tp>=0?"▲":"▼"}${Math.abs(Math.round(tp*100))} %</span>`:""}</span></span></button>`; }).join("")
+    : `<p class="sec-f">Aucune carte ne correspond à cette recherche.</p>`;
+  grid.querySelectorAll(".tile").forEach(t=>{ tilt(t.querySelector(".holo")); t.onclick=()=>{ const c=cards.find(x=>x.uid===t.dataset.uid); if(c) openCardSheet({id:c.id, lang:c.lang, owned:c}); }; });
+}
+$("#filter").addEventListener("input",renderCollection);
+$$("#sortSeg button").forEach(b=>b.onclick=()=>{ sortBy=b.dataset.s; $$("#sortSeg button").forEach(x=>x.setAttribute("aria-pressed",String(x===b))); renderCollection(); });
+
+// Actualise toutes les cotes depuis TCGdex
+let refreshing=false;
+async function refreshAll(){
+  if(refreshing||!cards.length) return; refreshing=true;
+  const btn=$("#refresh"); const ids=[...new Set(cards.map(c=>c.lang+"|"+c.id))]; let done=0, fail=0;
+  btn.disabled=true;
+  const queue=[...ids];
+  async function worker(){ while(queue.length){ const key=queue.shift(); const [lang,id]=key.split("|");
+    try{ cache.delete(`${lang}/cards/${encodeURIComponent(id)}`); const card=await tcg(`${lang}/cards/${encodeURIComponent(id)}`);
+      if(card) cards.filter(c=>c.id===id&&c.lang===lang).forEach(c=>{ c.prix=priceOf(card,c.variant); c.prixMaj=Date.now(); const b=baseValue(c.prix);
+        if(b!=null){ c.prixHist=(c.prixHist||[]); const last=c.prixHist[c.prixHist.length-1]; if(last && Date.now()-last[0]<6*3600e3) c.prixHist[c.prixHist.length-1]=[Date.now(),b]; else c.prixHist.push([Date.now(),b]); c.prixHist=c.prixHist.slice(-60); } });
+    }catch(e){ fail++; }
+    done++; btn.textContent=`${done}/${ids.length}…`; } }
+  await Promise.all([worker(),worker(),worker(),worker()]);
+  settings.refreshed=Date.now(); saveSettings(); store.set("cards",cards); snapshotTotal();
+  btn.disabled=false; btn.textContent="Actualiser"; refreshing=false;
+  toast(fail ? `${ids.length-fail} cotes actualisées, ${fail} en échec` : "Cotes actualisées", !fail);
+}
+$("#refresh").onclick=refreshAll;
+
+/* ======================= Réglages ======================= */
+function renderSettings(){
+  $("#apiKey").value=settings.key;
+  $$("#modelSeg button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.m===settings.model)));
+  $$("#langSeg button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.l===settings.lang)));
+  $("#keyNotice").hidden=!!settings.key;
+  $("#q").placeholder = settings.lang==="en" ? "Charizard 4/102" : settings.lang==="ja" ? "リザードン 006" : "Dracaufeu 4/102";
+}
+$("#apiKey").addEventListener("change",e=>{ settings.key=e.target.value.trim(); saveSettings(); renderSettings(); if(settings.key) toast("Clé enregistrée sur ce téléphone"); });
+$$("#modelSeg button").forEach(b=>b.onclick=()=>{ settings.model=b.dataset.m; saveSettings(); renderSettings(); });
+$$("#langSeg button").forEach(b=>b.onclick=()=>{ settings.lang=b.dataset.l; saveSettings(); renderSettings(); });
+$("#export").onclick=()=>{
+  const data=JSON.stringify({app:"HoloCote",version:1,exportedAt:new Date().toISOString(),cards,history},null,1);
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));
+  a.download=`holocote-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+};
+$("#import").addEventListener("change",async e=>{
+  const f=e.target.files?.[0]; e.target.value=""; if(!f) return;
+  try{ const j=JSON.parse(await f.text()); if(!Array.isArray(j.cards)) throw 0;
+    const known=new Set(cards.map(c=>c.uid)); let added=0;
+    j.cards.forEach(c=>{ if(c&&c.id&&c.uid&&!known.has(c.uid)){ cards.push(c); added++; } });
+    if(Array.isArray(j.history)&&!history.length) history=j.history;
+    store.set("history",history); saveCards(); toast(`${added} carte${added>1?"s":""} importée${added>1?"s":""}`);
+  }catch(err){ toast("Ce fichier n'est pas une sauvegarde HoloCote", false); }
+});
+$("#wipe").onclick=()=>confirmAction("Toutes les cartes de ta collection seront supprimées de ce téléphone.", "Vider la collection", ()=>{ cards=[]; history=[]; store.set("history",[]); saveCards(); toast("Collection vidée"); });
+
+/* ======================= Démarrage ======================= */
+renderSettings(); renderRecent(); renderCollection(); route();
+if(!camWanted) pill("");
+if("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
+})();
+</script>
+</body>
+</html>
